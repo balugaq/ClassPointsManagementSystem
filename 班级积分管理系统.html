@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="default" data-page-node-id="TVziMMjo52G5sFdgIpr4bu">
+<head data-page-node-id="6IV1MnAoNqxipDNfQ3VQRd">
+<meta charset="UTF-8" data-page-node-id="TsQb91LQCQLqo3JWdPcXE6">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="IxEvbwOUEHOYqUhxnId83o">
+<title>班级积分管理系统</title>
+<style>
+  :root{
+    --p1:#5b7cfa; --p2:#3b5bdb; --pg:linear-gradient(135deg,#5b8def,#4a5cf0);
+    --side:#eef1fb; --card:#ffffff; --bg:#f3f5fc; --txt:#2b2f3a; --sub:#7a8199;
+    --red:#f04438; --green:#12b76a; --radius:16px;
+  }
+  html[data-theme="violet"]{ --p1:#9b6afd; --p2:#7c3aed; --pg:linear-gradient(135deg,#a78bfa,#7c3aed); --side:#f3eefc; --bg:#f7f3fd; }
+  html[data-theme="teal"]{ --p1:#14b8a6; --p2:#0d9488; --pg:linear-gradient(135deg,#2dd4bf,#0d9488); --side:#e9f9f6; --bg:#f0faf8; }
+  html[data-theme="sunset"]{ --p1:#fb923c; --p2:#ea580c; --pg:linear-gradient(135deg,#fdba74,#ea580c); --side:#fdf1e7; --bg:#fdf8f2; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; font-size:14px;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+  input,textarea,select{font-family:inherit; outline:none;}
+
+  /* ===== 顶栏 ===== */
+  .topbar{background:var(--pg); color:#fff; display:flex; align-items:center; padding:10px 18px; gap:16px; position:relative;}
+  .topbar .notice{font-size:12px; opacity:.85; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .brand{display:flex; align-items:center; gap:10px; font-size:24px; font-weight:800; letter-spacing:2px; text-shadow:0 2px 6px rgba(0,0,0,.2);}
+  .brand .logo{width:42px; height:42px; background:rgba(255,255,255,.22); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px;}
+  .topbar-right{flex:1; display:flex; justify-content:flex-end; align-items:center; gap:10px;}
+  .sync-box{background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); border-radius:12px; padding:6px 10px; display:flex; align-items:center; gap:10px;}
+  .sync-box .sync-label{font-size:12px; display:flex; align-items:center; gap:4px; opacity:.95;}
+  .btn-export,.btn-import{display:flex; align-items:center; gap:5px; border-radius:9px; padding:7px 16px; font-size:13px; font-weight:600; color:#fff; transition:.15s;}
+  .btn-export{background:rgba(255,255,255,.22);}
+  .btn-import{background:rgba(255,255,255,.22);}
+  .btn-export:hover,.btn-import:hover{background:rgba(255,255,255,.35);}
+
+  /* ===== 布局 ===== */
+  .layout{display:flex; min-height:calc(100vh - 62px);}
+  .sidebar{width:130px; background:var(--side); padding:16px 10px; display:flex; flex-direction:column; gap:8px; align-items:stretch;}
+  .nav-item{display:flex; flex-direction:column; align-items:center; gap:5px; padding:12px 6px; border-radius:14px; color:var(--sub); font-size:13px; background:transparent; transition:.15s;}
+  .nav-item .ico{font-size:20px;}
+  .nav-item.active{background:var(--pg); color:#fff; box-shadow:0 6px 14px rgba(74,92,240,.35); font-weight:700;}
+  .nav-item:not(.active):hover{background:rgba(91,124,250,.1); color:var(--p2);}
+  .sidebar .spacer{flex:1;}
+  .tool-item{background:var(--pg); color:#fff; border-radius:14px; padding:14px 6px; text-align:center; font-weight:700; box-shadow:0 6px 14px rgba(74,92,240,.35);}
+
+  main{flex:1; padding:14px 18px; display:flex; flex-direction:column; gap:14px; min-width:0;}
+  .toolbar-row{display:flex; justify-content:center; gap:14px; flex-wrap:wrap;}
+  .tb-btn{color:#fff; border-radius:22px; padding:9px 22px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 4px 10px rgba(0,0,0,.12); transition:.15s;}
+  .tb-btn:hover{transform:translateY(-2px); filter:brightness(1.08);}
+  .tb-blue{background:var(--pg);} .tb-purple{background:linear-gradient(135deg,#a855f7,#7c3aed);}
+  .tb-red{background:linear-gradient(135deg,#f87171,#dc2626);} .tb-orange{background:linear-gradient(135deg,#fb923c,#ea580c);}
+  .tb-pink{background:linear-gradient(135deg,#f472b6,#db2777);}
+
+  .content-grid{display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:16px; align-items:start;}
+  .left-col{display:flex; flex-direction:column; gap:16px; min-width:0;}
+  .card{background:var(--card); border-radius:var(--radius); box-shadow:0 4px 16px rgba(80,95,180,.08); padding:18px;}
+
+  /* 学生编辑入口 */
+  .edit-entry{display:flex; align-items:center; gap:14px;}
+  .edit-entry .big-btn{background:var(--pg); color:#fff; font-size:16px; font-weight:700; padding:12px 28px; border-radius:12px; display:flex; align-items:center; gap:8px; box-shadow:0 6px 14px rgba(74,92,240,.35);}
+  .edit-entry .big-btn:hover{filter:brightness(1.08);}
+  .edit-entry .hint{color:var(--sub); font-size:13px;}
+
+  /* 搜索选择区 */
+  .search-card h3{display:flex; align-items:center; gap:8px; font-size:16px; margin-bottom:14px;}
+  .search-row{display:flex; gap:14px; flex-wrap:wrap; align-items:stretch;}
+  .search-left{flex:1; max-width:380px; min-width:200px; display:flex; flex-direction:column; gap:10px; min-height:0;}
+  .search-wrap{position:relative; flex-shrink:0;}
+  .search-wrap input{width:100%; padding:10px 14px 10px 36px; border:2px solid #e3e7f5; border-radius:10px; font-size:14px; transition:.15s;}
+  .search-wrap input:focus{border-color:var(--p1);}
+  .search-wrap .s-ico{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--sub);}
+  .btn-score{border-radius:10px; padding:10px 22px; font-size:14px; font-weight:700; color:#fff; transition:.15s;}
+  .btn-add-s{background:linear-gradient(135deg,#f87171,#dc2626);}
+  .btn-ai{background:linear-gradient(135deg,#a855f7,#7c3aed);}
+  .btn-sub-s{background:linear-gradient(135deg,#34d399,#059669);}
+  .btn-score:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+  .btn-score:not(:disabled):hover{filter:brightness(1.08); transform:translateY(-1px);}
+  .sel-info{background:rgba(91,124,250,.08); border:1px dashed var(--p1); border-radius:10px; padding:9px 12px; font-size:13px; color:var(--p2); display:none; align-items:center; gap:8px; flex-wrap:wrap; align-content:flex-start; flex:1 1 auto; min-height:0; overflow-y:auto;}
+  .sel-info .names{font-weight:600;}
+  .sel-info .clear-sel{background:transparent; color:var(--red); font-size:12px; text-decoration:underline; padding:2px 4px;}
+  .quick-row{display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;}
+  .btn-sort{margin-left:auto; background:#eef1fa; color:var(--p2); border-radius:10px; padding:9px 18px; font-size:13px; font-weight:700; transition:.15s;}
+  .btn-sort:hover{background:rgba(91,124,250,.15);}
+  /* 引导列 + 学生卡片 */
+  .pick-area{display:flex; gap:12px; margin-top:12px; align-items:stretch;}
+  .guide-col{width:120px; flex-shrink:0; display:flex; flex-direction:column; gap:4px; max-height:430px; overflow-y:auto; background:#f7f8fe; border-radius:10px; padding:6px;}
+  .guide-item{display:flex; justify-content:space-between; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:transparent; color:var(--sub); font-size:13px; text-align:left; transition:.12s;}
+  .guide-item:hover{background:rgba(91,124,250,.1);}
+  .guide-item.active{background:var(--pg); color:#fff; font-weight:700;}
+  .guide-item.dim{opacity:.4;}
+  .guide-item .g-n{font-size:11px; opacity:.75; flex-shrink:0;}
+  .stu-cards{flex:1; display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:8px; align-content:start; max-height:430px; overflow-y:auto; padding-right:2px;}
+  .stu-card{border:1.5px solid #edf0fa; background:#fbfcff; border-radius:10px; padding:9px 11px; display:flex; flex-direction:column; gap:7px; cursor:pointer; transition:.12s;}
+  .stu-card:hover{border-color:var(--p1); background:#f5f8ff;}
+  .stu-card.checked{background:rgba(91,124,250,.1); border-color:var(--p1);}
+  .sc-top{display:flex; align-items:center; gap:8px;}
+  .sc-top input[type=checkbox]{width:16px; height:16px; accent-color:var(--p1); cursor:pointer; flex-shrink:0;}
+  .s-name{font-weight:700; font-size:14px;}
+  .s-score{margin-left:auto; font-weight:800; font-size:14px;}
+  .s-score.plus{color:var(--red);} .s-score.minus{color:var(--green);} .s-score.zero{color:var(--sub);}
+  .sc-bot{display:flex; align-items:center; gap:6px;}
+  .s-group{font-size:11px; color:var(--p2); background:rgba(91,124,250,.12); padding:2px 8px; border-radius:7px;}
+  .btn-detail{margin-left:auto; background:rgba(91,124,250,.12); color:var(--p2); font-size:12px; padding:3px 10px; border-radius:7px;}
+  /* 软键盘 */
+  .kbd{flex:1; min-width:250px; background:#f2f4fc; border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:5px; align-self:flex-start;}
+  .kbd-row{display:flex; gap:5px; justify-content:center;}
+  .kbd-key{flex:1; max-width:44px; height:34px; border-radius:7px; background:#fff; color:var(--txt); font-size:13px; font-weight:600; box-shadow:0 2px 0 #d9def0; transition:.08s;}
+  .kbd-key:hover{background:var(--pg); color:#fff;}
+  .kbd-key:active{transform:translateY(2px); box-shadow:none;}
+  .kbd-key.wide{max-width:none; padding:0 22px;}
+  .empty-tip{color:var(--sub); text-align:center; padding:26px 0; font-size:13px;}
+
+  /* ===== 排行榜 ===== */
+  .board{display:flex; flex-direction:column; gap:12px;}
+  .board-head{display:flex; align-items:center; justify-content:space-between;}
+  .board-head h3{display:flex; align-items:center; gap:8px; font-size:17px;}
+  .board-tip{font-size:11px; color:var(--sub); text-align:right; margin-top:-6px;}
+  .board-tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .b-tab{padding:7px 16px; border-radius:18px; background:#f0f2fa; color:var(--sub); font-size:13px; font-weight:600;}
+  .b-tab.active{background:var(--pg); color:#fff; box-shadow:0 4px 10px rgba(74,92,240,.3);}
+  .board-list{display:flex; flex-direction:column; gap:7px; min-height:220px; max-height:401px; overflow-y:auto;}
+  .b-row{display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; background:#f8f9fe; flex-shrink:0; cursor:pointer; transition:.12s;}
+  .b-row:hover{background:#e9edfb;}
+  .b-info{display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;}
+  .b-row .rank{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; background:#e8ebf7; color:var(--sub); flex-shrink:0;}
+  .b-row.top1 .rank{background:linear-gradient(135deg,#ffd700,#ffa000); color:#fff;}
+  .b-row.top2 .rank{background:linear-gradient(135deg,#c0c8d8,#8f9ab5); color:#fff;}
+  .b-row.top3 .rank{background:linear-gradient(135deg,#e8a06a,#c47a3d); color:#fff;}
+  .b-row .b-name{font-weight:700;}
+  .b-row .b-group{font-size:11px; color:var(--sub);}
+  .b-row .b-score{margin-left:auto; font-weight:800;}
+  .b-row .b-score.plus{color:var(--red);} .b-row .b-score.minus{color:var(--green);} .b-row .b-score.zero{color:var(--sub);}
+
+  /* ===== 弹窗 ===== */
+  .mask{display:none; position:fixed; inset:0; background:rgba(20,25,50,.45); z-index:100; align-items:center; justify-content:center; padding:20px;}
+  .mask.show{display:flex;}
+  .modal{background:#fff; border-radius:18px; width:min(720px,95vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .modal.wide{width:min(920px,96vw);}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:var(--pg); color:#fff;}
+  .modal-head h3{font-size:16px;}
+  .modal-close{background:rgba(255,255,255,.2); color:#fff; width:28px; height:28px; border-radius:50%; font-size:14px;}
+  .modal-body{padding:18px 20px; overflow-y:auto;}
+  .modal-foot{padding:12px 20px; border-top:1px solid #eef0f8; display:flex; justify-content:flex-end; gap:10px;}
+  .m-btn{padding:9px 22px; border-radius:10px; font-size:14px; font-weight:600;}
+  .m-primary{background:var(--pg); color:#fff;} .m-plain{background:#eef1fa; color:var(--sub);}
+  .m-danger{background:linear-gradient(135deg,#f87171,#dc2626); color:#fff;}
+
+  /* 编辑表格 */
+  .stu-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .stu-table th{background:#f2f4fc; color:var(--sub); padding:9px 8px; font-size:12px; border-bottom:2px solid #e6e9f6; text-align:left;}
+  .stu-table td{padding:5px 6px; border-bottom:1px solid #f0f2fa;}
+  .stu-table input{width:100%; border:1px solid transparent; background:transparent; padding:7px 8px; border-radius:7px; font-size:13px;}
+  .stu-table input:hover{border-color:#dfe3f3;}
+  .stu-table input:focus{border-color:var(--p1); background:#fff;}
+  .row-del{background:rgba(240,68,56,.1); color:var(--red); width:26px; height:26px; border-radius:7px; font-size:13px;}
+  .paste-area{width:100%; height:110px; border:2px dashed #cdd4ee; border-radius:10px; padding:10px; font-size:13px; resize:vertical; margin-top:8px;}
+  .paste-area:focus{border-color:var(--p1);}
+  .tip-line{font-size:12px; color:var(--sub); margin-top:6px;}
+  .edit-actions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+
+  /* 加扣分弹窗 */
+  .tpl-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-bottom:6px;}
+  .tpl-card{position:relative; border:2px solid #e6e9f6; border-radius:12px; padding:10px 12px; text-align:left; background:#fbfcff; transition:.12s;}
+  .tpl-card:hover{border-color:var(--p1); background:#f5f8ff;}
+  .tpl-card .t-reason{font-weight:700; font-size:13px; margin-bottom:4px; word-break:break-all;}
+  .tpl-card .t-score{font-size:15px; font-weight:800;}
+  .tpl-card .t-score.jia{color:var(--red);} .tpl-card .t-score.kou{color:var(--green);}
+  .tpl-card .t-type{font-size:11px; padding:1px 7px; border-radius:6px; margin-right:6px;}
+  .t-type.jia{background:rgba(240,68,56,.12); color:var(--red);}
+  .t-type.kou{background:rgba(18,183,106,.12); color:var(--green);}
+  .tpl-card .t-del{position:absolute; top:-7px; right:-7px; width:20px; height:20px; border-radius:50%; background:#f04438; color:#fff; font-size:11px; display:none;}
+  .tpl-card:hover .t-del{display:block;}
+  .sec-title{font-size:13px; font-weight:700; color:var(--sub); margin:14px 0 8px; display:flex; align-items:center; gap:8px;}
+  .tpl-form{display:none; background:#f7f8fe; border-radius:12px; padding:12px; gap:10px; margin-top:8px; flex-wrap:wrap; align-items:center;}
+  .tpl-form.show{display:flex;}
+  .tpl-form input,.tpl-form select{padding:8px 10px; border:1px solid #dde2f2; border-radius:8px; font-size:13px;}
+  .tpl-form .t-r{flex:1; min-width:120px;}
+  .tpl-form .t-s{width:80px;}
+  .score-form{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .sf-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .sf-row label{font-size:13px; color:var(--sub); width:52px; flex-shrink:0;}
+  .sf-row input[type=number]{width:110px; padding:9px 12px; border:2px solid #e3e7f5; border-radius:9px; font-size:16px; font-weight:700;}
+  .sf-row input[type=number]:focus{border-color:var(--p1);}
+  .sf-row input.note-in{flex:1; min-width:160px; padding:9px 12px; border:2px solid #e3e7f5; border-radius:9px; font-size:13px;}
+  .quick-btns{display:flex; gap:7px; flex-wrap:wrap;}
+  .q-btn{width:42px; height:36px; border-radius:9px; background:#f0f2fa; color:var(--p2); font-weight:800; font-size:14px; transition:.1s;}
+  .q-btn:hover{background:var(--pg); color:#fff;}
+  .radio-type{display:flex; gap:14px;}
+  .radio-type label{display:flex; align-items:center; gap:5px; font-size:14px; cursor:pointer; color:var(--txt); width:auto;}
+
+  /* 明细弹窗 */
+  .rec-row{display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid #f2f4fb; font-size:13px;}
+  .rec-row .r-name{font-weight:700; flex-shrink:0; max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rec-row .r-time{color:var(--sub); font-size:12px; width:130px; flex-shrink:0;}
+  .rec-row .r-type{font-size:11px; padding:2px 8px; border-radius:6px; flex-shrink:0;}
+  .rec-row .r-type.jia{background:rgba(240,68,56,.12); color:var(--red);}
+  .rec-row .r-type.kou{background:rgba(18,183,106,.12); color:var(--green);}
+  .rec-row .r-score{font-weight:800; width:44px;}
+  .rec-row .r-score.jia{color:var(--red);} .rec-row .r-score.kou{color:var(--green);}
+  .rec-row .r-note{flex:1; color:var(--sub); word-break:break-all;}
+  .rec-row .r-note.empty{opacity:.5;}
+  .rec-row.off .r-time,.rec-row.off .r-note{opacity:.4; text-decoration:line-through;}
+  .btn-toggle{font-size:12px; padding:4px 10px; border-radius:8px; flex-shrink:0;}
+  .btn-toggle.on{background:rgba(18,183,106,.12); color:var(--green);}
+  .btn-toggle.off{background:rgba(240,68,56,.1); color:var(--red);}
+
+  /* 密码弹窗 */
+  .pwd-in{width:100%; padding:10px 14px; border:2px solid #e3e7f5; border-radius:9px; font-size:14px;}
+
+  /* 登录状态（顶栏） */
+  .login-box{display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); border-radius:12px; padding:6px 10px;}
+  .login-status{font-size:13px; font-weight:600; white-space:nowrap;}
+  .btn-logout{background:#e5484d; color:#fff; font-size:12px; font-weight:700; padding:5px 14px; border-radius:8px; transition:.15s;}
+  .btn-logout:hover{filter:brightness(1.1);}
+  .btn-logout.dim{opacity:.5; cursor:not-allowed;}
+
+  /* 工具弹窗 */
+  .tool-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;}
+  .tool-card{border:2px solid #e6e9f6; border-radius:14px; padding:18px 12px; background:#fbfcff; text-align:center; transition:.12s;}
+  .tool-card:hover{border-color:var(--p1); background:#f5f8ff; transform:translateY(-2px);}
+  .tool-card .tc-ico{font-size:28px;}
+  .tool-card .tc-name{font-weight:700; margin-top:8px; font-size:14px;}
+
+  /* 模板管理表格 */
+  .tpl-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .tpl-table th{background:#f2f4fc; color:var(--sub); padding:9px 8px; font-size:12px; border-bottom:2px solid #e6e9f6; text-align:left;}
+  .tpl-table td{padding:5px 6px; border-bottom:1px solid #f0f2fa;}
+  .tpl-table select,.tpl-table input{padding:7px 8px; border:1px solid #dde2f2; border-radius:7px; font-size:13px; width:100%;}
+  .tpl-table .td-score{width:90px;} .tpl-table .td-type{width:100px;}
+
+  /* toast */
+  #toast{position:fixed; top:76px; left:50%; transform:translateX(-50%) translateY(-16px); background:rgba(30,35,60,.92); color:#fff; padding:10px 22px; border-radius:24px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:999;}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  #toast.ok{background:linear-gradient(135deg,#12b76a,#059669);}
+  #toast.err{background:linear-gradient(135deg,#f87171,#dc2626);}
+
+  @media (max-width:980px){ .content-grid{grid-template-columns:1fr;} .board{order:-1;} }
+</style>
+</head>
+<body data-page-node-id="PeJ3AooDNbSRb3HLrF6iQi">
+
+<!-- 顶栏 -->
+<header class="topbar" data-page-node-id="Jj1tf3FL5UB51ZIk7M92JZ">
+  <div class="notice" data-page-node-id="LRXYZIFCv48sEz1USguZYG">💡 提示：所有数据保存在本机浏览器（localStorage），可通过右上角导入 / 导出进行备份迁移</div>
+  <div class="brand" data-page-node-id="TPi1NgmvrmxJtGSfoz2sne"><span class="logo" data-page-node-id="etD9d05eSEotUlNp5GMAUb">🎓</span>班级积分管理系统</div>
+  <div class="topbar-right" data-page-node-id="0znO0Dhew7co4sl7g0gVHV">
+    <div class="sync-box" data-page-node-id="BYtcGE0ITQBhvg4Ynma57u">
+      <span class="sync-label" data-page-node-id="bQckI2Ul64o2zmylkn55UX">☁️ 数据备份</span>
+      <button class="btn-export" onclick="exportAll()" data-page-node-id="4lW0ZGYcz2wzeuPOUpHI2V">⬇ 导出</button>
+      <button class="btn-import" onclick="importClick()" data-page-node-id="IbQ7LQZDUnZz2PJgHJ4syV">⬆ 导入</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAll(this)" data-page-node-id="6eojHrrVtaUrK4H2fzYTQn">
+    </div>
+    <div class="login-box">
+      <span class="login-status" id="loginStatus">⚪ 未登录</span>
+      <button class="btn-logout dim" id="btnLogout" onclick="logout()">登出</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout" data-page-node-id="QGV9B2tB4T9TopZc0xOAcS">
+  <!-- 左侧栏 -->
+  <aside class="sidebar" data-page-node-id="TmIipZvW1JM2ag5T05AXMx">
+    <button class="nav-item active" data-page-node-id="tQYaYIoQTHazGeiHSReEWJ"><span class="ico" data-page-node-id="51GAzC4zO1MyqRKbfKRHww">👥</span>学生管理</button>
+    <button class="tool-item" onclick="openTools()" data-page-node-id="k6yDDwB5TtfmsO53dNigKt">🧰<br data-page-node-id="gL3TwW10Iu1Dva7coXsujm">实用工具</button>
+    <div class="spacer" data-page-node-id="TCVVBosZIGlmrd5iTwVzhk"></div>
+  </aside>
+
+  <main data-page-node-id="bEdVUEmzS7rztvJwS78FIE">
+    <!-- 工具按钮行 -->
+    <div class="toolbar-row" data-page-node-id="EPntAZJMQUdOaT3nUmEy2u">
+      <button class="tb-btn tb-blue" onclick="cycleTheme()" data-page-node-id="J3ZMjwNnDKe8swrcPGAnHB">🎨 更换主题</button>
+      <button class="tb-btn tb-purple" onclick="openPwd()" data-page-node-id="CSpvUaOMAYgllq86HhXAoL">🔒 密码设置</button>
+      <button class="tb-btn tb-orange" onclick="clearScores()" data-page-node-id="uDRaCHeH79uR9GyjvltAPo">🧹 清除所有积分</button>
+      <button class="tb-btn tb-pink" onclick="exportDetail()" data-page-node-id="yIReMtJr5BZLSzZzAZnHkv">📤 导出积分明细</button>
+    </div>
+
+    <div class="content-grid" data-page-node-id="hFEN0SYleb9wRlpS6qN6bO">
+      <div class="left-col" data-page-node-id="ulihMXkFtpAlw82u5VuG5w">
+        <!-- 左上方：学生编辑入口 -->
+        <section class="card edit-entry" data-page-node-id="6zmACoofustjIpJKDo7NxP">
+          <button class="big-btn" onclick="openEditor()" data-page-node-id="xtZSKCY4qfo1rekBwSJsG5">✏️ 学生编辑</button>
+          <span class="hint" data-page-node-id="Rl7oyXhCrAuMuL8npF5oM1">以表格形式管理所有学生：手动增删改，或直接粘贴 Excel 数据</span>
+        </section>
+
+        <!-- 中间：搜索 + 选择 + 加扣分 -->
+        <section class="card search-card" data-page-node-id="Bg6rwPYhNTfd40W6DJMg6m">
+          <h3 data-page-node-id="6iyHXHsWgdDYuDihaAznB8">🔍 学生搜索 <span style="font-size:12px;color:var(--sub);font-weight:400" data-page-node-id="yngFgMCETJsAlxUbd2GezI">支持中文 / 拼音首字母（如 zsm → 张三明）</span></h3>
+          <div class="search-row" data-page-node-id="xXHm3GHy3INnQgyrFPOrrm">
+            <div class="search-left">
+              <div class="search-wrap" data-page-node-id="uP0FmFEMM4FWmslwX0z0eT">
+                <span class="s-ico" data-page-node-id="p1fk1phDrniV4KLKtFkido">🔎</span>
+                <input id="searchIn" type="text" placeholder="输入姓名或拼音首字母…" oninput="renderList()" data-page-node-id="k3wxTxx0L0tmCCkkQ2Mz9s">
+              </div>
+              <div class="sel-info" id="selInfo" data-page-node-id="IljADUjyn2cUcOxgHbhEuF"></div>
+            </div>
+            <div class="kbd" id="softKbd" data-page-node-id="kbdRoot"></div>
+          </div>
+          <div class="quick-row">
+            <button class="btn-score btn-add-s" id="btnJia" disabled onclick="openScore('加')" data-page-node-id="opdsHVsDCajBLdNNW5YBu5">➕ 加分</button>
+            <button class="btn-score btn-sub-s" id="btnKou" disabled onclick="openScore('扣')" data-page-node-id="gUTARputwbYSGGfGYL7mmI">➖ 扣分</button>
+            <button class="btn-score btn-ai" onclick="toast('🤖 AI加扣分功能开发中，敬请期待','err')">🤖 AI加扣分</button>
+            <button class="btn-sort" id="btnSort" onclick="toggleSort()">🔀 排序：按小组</button>
+          </div>
+          <div class="pick-area">
+            <div class="guide-col" id="guideCol"></div>
+            <div class="stu-cards" id="stuCards"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 右下角：排行榜 -->
+      <aside class="card board" data-page-node-id="HKG8znGHzhiUFtkEGsqq2i">
+        <div class="board-head" data-page-node-id="inCGMtD4cCbCkXZnGRbMcG"><h3 data-page-node-id="m4YDouYmCBFjWcC8VqmrLm">🏆 排行榜</h3></div>
+        <div class="board-tip" data-page-node-id="eyTESz0ymUlnpEhCWAgMr1">选择按个人 / 按小组排名，以及总榜、月榜、周榜</div>
+        <div class="board-tabs">
+          <button class="b-tab active" data-mode="person" onclick="setMode('person',this)">👤 按个人排</button>
+          <button class="b-tab" data-mode="group" onclick="setMode('group',this)">👥 按小组排</button>
+        </div>
+        <div class="board-tabs" data-page-node-id="69eVWMe5N3l18Gy6HWvK8x">
+          <button class="b-tab active" data-range="total" onclick="setRange('total',this)" data-page-node-id="NDIAEWAZf5jfZoPl4Uu6Mu">总榜</button>
+          <button class="b-tab" data-range="month" onclick="setRange('month',this)" data-page-node-id="sJ0Xcv9iNQ2hy4EHoSaIRX">月榜</button>
+          <button class="b-tab" data-range="week" onclick="setRange('week',this)" data-page-node-id="xBzs8Bb0CCeM9O8hGtlDdD">周榜</button>
+        </div>
+        <div class="board-list" id="boardList" data-page-node-id="dVzsxCNC0O56b3WsKxwpqA"></div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- 学生编辑弹窗 -->
+<div class="mask" id="editorMask" data-page-node-id="rGH0eVbRgknLaH652PhhTP">
+  <div class="modal wide" data-page-node-id="BAIqbY4RSvW2k31550Yrnu">
+    <div class="modal-head" data-page-node-id="W5jhcSE5RgKS4WvtPRTgmn"><h3 data-page-node-id="QuguF64AkobfY7lt411XI6">✏️ 学生编辑（表格）</h3><button class="modal-close" onclick="saveEditor()" data-page-node-id="tFtEEcxUoeCewnsgB3kHHx">✕</button></div>
+    <div class="modal-body" data-page-node-id="jNTP2MoI6qiTE2UAoKdPVE">
+      <table class="stu-table" data-page-node-id="i56qIYEIXCkZIGf6ifKokC">
+        <thead data-page-node-id="aSuoUDW0Dr2zOqhF5f2w8n"><tr data-page-node-id="zkHoXkQZ9t3CNW8V0UZsbG"><th style="width:46px" data-page-node-id="E1g9JY2W2QByySTnwsHPyg">序号</th><th data-page-node-id="XuKSsMtBGzTcUzkyE0FoXO">姓名</th><th data-page-node-id="2lRYupNsooA3qXOF3XRdAx">小组</th><th style="width:56px" data-page-node-id="j6iwwOrRY5t9JPRAHDeSTj">操作</th></tr></thead>
+        <tbody id="editTbody" data-page-node-id="9UrTJPKV8ACK6ZKy4uP85H"></tbody>
+      </table>
+      <div class="edit-actions" data-page-node-id="GPBArPpi7k03g0DBO0ZLaF">
+        <button class="m-btn m-primary" onclick="addEditRow()" data-page-node-id="eWIHlmQOw1KDCAk24fue79">＋ 添加一行</button>
+      </div>
+      <div class="sec-title" style="margin-top:18px" data-page-node-id="oAZKfKTVvliJ1GS96rm1G7">📋 粘贴 Excel 数据（自动识别）</div>
+      <textarea class="paste-area" id="pasteArea" placeholder="从 Excel 复制后直接粘贴到此处，每行一个学生：&#10;姓名[TAB]小组　或　姓名 空格 小组&#10;例：张三	一组"></textarea>
+      <div class="tip-line" data-page-node-id="fSLDYfJtLLMt2WLDygMspN">支持 Tab 分隔（Excel 直接复制）或空格分隔；首行若为“姓名”表头会自动跳过。解析后加入下方表格，点“保存”生效。</div>
+      <div class="edit-actions" data-page-node-id="chUrUBrsIFV27UvJF4epIF">
+        <button class="m-btn m-primary" onclick="parsePaste()" data-page-node-id="VOp3vp4n4x0g5WHH3Lx08q">解析并追加</button>
+        <button class="m-btn m-plain" onclick="document.getElementById('pasteArea').value=''" data-page-node-id="U19r1HxU0NRmpzQW795KD9">清空粘贴区</button>
+      </div>
+    </div>
+    <div class="modal-foot" data-page-node-id="gAFivIj2KLDnJs4V3EYvSC">
+      <button class="m-btn m-plain" onclick="saveEditor()" data-page-node-id="CEPXPuFiV04TNYfZsDc4Jr">关闭（自动保存）</button>
+      <button class="m-btn m-primary" onclick="saveEditor()" data-page-node-id="c9I5OxrugQsKX3S8ay4vPh">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 加/扣分弹窗 -->
+<div class="mask" id="scoreMask" data-page-node-id="L53JMcAQCHq0VBCtH8rWGM">
+  <div class="modal" data-page-node-id="0iT5AxWSvg6UvBtwRD7518">
+    <div class="modal-head" data-page-node-id="kSW9u9lpjtqHJ54fXbqwso"><h3 id="scoreTitle" data-page-node-id="qTck7MvHb4r949K0AWe80C">➕ 加分</h3><button class="modal-close" onclick="closeScoreAsk()" data-page-node-id="NBgSC1WzQ5tV8Rh5HN8PFM">✕</button></div>
+    <div class="modal-body" data-page-node-id="lOGqldUNEn1FL6R5HDA8Il">
+      <div class="sec-title" style="margin-top:0" data-page-node-id="cBV4vDRvBKtd17XifR0P2g">⚡ 积分模板（点击填充，不会直接执行）</div>
+      <div class="tpl-grid" id="tplGrid" data-page-node-id="HE2QU6XxOOxmyyAr6n2fvi"></div>
+      <button class="m-btn m-plain" onclick="toggleTplForm()" data-page-node-id="1fV2ESnBvbyUa61NkksMPo">＋ 添加模板</button>
+      <div class="tpl-form" id="tplForm" data-page-node-id="Ey5FPcWnbLUjaY6l8EwzkB">
+        <select id="tplFType" data-page-node-id="cHXPAKyI8hYCuwChv3bfCN"><option value="加" data-page-node-id="Bun9JHuWpBEObALPd1XdGC">加分</option><option value="扣" data-page-node-id="8HZHmfhmqbhSw3b9Kz1RfA">扣分</option></select>
+        <input class="t-r" id="tplFReason" placeholder="原因，如：课堂发言" data-page-node-id="HNKRptmiBHuIBJCh0Pm6HD">
+        <input class="t-s" id="tplFScore" type="number" min="0" placeholder="分数" data-page-node-id="DojN9R6k2xr68Nv438TDdj">
+        <button class="m-btn m-primary" onclick="addTemplate()" data-page-node-id="ZZdrPyXty4g6WxY1Ks2Exa">保存模板</button>
+      </div>
+
+      <div class="sec-title" data-page-node-id="5k0Mdvmbexsehp46vvEPfQ">✍️ 手动填写</div>
+      <div class="score-form" data-page-node-id="rZQguvmGgdmcjTOiM39usT">
+        <div class="sf-row" data-page-node-id="jW7TaOEUAp22d1415B8V16">
+          <label data-page-node-id="D4Dl4wCfbKER7FGLwv8vup">类型</label>
+          <div class="radio-type" data-page-node-id="rAeLrKMxEREpZeCALYB6bG">
+            <label data-page-node-id="gBNKph43wMdmWSfDDzaa0J"><input type="radio" name="stype" value="加" checked data-page-node-id="2E9Iw0lJNBKL2KYJDaERaB"> <span style="color:var(--red);font-weight:700" data-page-node-id="AfUUnrNIT6Ppg30IxaA4ba">加分</span></label>
+            <label data-page-node-id="CMEhMv9kz44lyA4GNkB0gl"><input type="radio" name="stype" value="扣" data-page-node-id="nDNQZdTsVULXZwPQuoQwKN"> <span style="color:var(--green);font-weight:700" data-page-node-id="pTZGid8l64zjgFkVFGyt01">扣分</span></label>
+          </div>
+        </div>
+        <div class="sf-row" data-page-node-id="F4XNT1xrpGJj6KwxIDFJ9D">
+          <label data-page-node-id="yEEWBuqB6JeduQt4AfBEle">分数</label>
+          <input type="number" id="scoreIn" min="0" step="0.1" placeholder="绝对值" data-page-node-id="hhbug64M6FFgY3YP2AiaQA">
+        </div>
+        <div class="sf-row" data-page-node-id="v7QGxV2nmF3S4AWxlsG1To">
+          <label data-page-node-id="1qYjkCwlMEhm7Cv4AbCYoM"></label>
+          <div class="quick-btns" id="quickBtns" data-page-node-id="iecwKOxcY37Kw8CsYhKbqo"></div>
+        </div>
+        <div class="sf-row" data-page-node-id="GxF2jDerJ36nxbUgolp3xJ">
+          <label data-page-node-id="q7NxiWLhoPHyc7LLVtTouA">备注</label>
+          <input class="note-in" id="noteIn" type="text" placeholder="原因 / 备注（可作为加分或扣分原因）" data-page-node-id="ZJakV46IbsJ1BCzaA4RicE">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot" data-page-node-id="yw0oL6wpwknEWug6ofKaTi">
+      <button class="m-btn m-plain" onclick="closeScoreAsk()" data-page-node-id="U1V9wH3xwlkLWh4GrvYFOR">取消</button>
+      <button class="m-btn m-primary" onclick="confirmScore()" data-page-node-id="JA4Kzmx7rR5DHX7RlRUG1Y">✔ 确认执行</button>
+    </div>
+  </div>
+</div>
+
+<!-- 积分明细弹窗 -->
+<div class="mask" id="recMask" data-page-node-id="rhZlP6gCTcNOdIbMHzwnRf">
+  <div class="modal" data-page-node-id="pOHW9xAPmtIJD9ZE8neukR">
+    <div class="modal-head" data-page-node-id="inCMSUHHT1QyHgKLtOLz28"><h3 id="recTitle" data-page-node-id="idjaQLLyIE3ZtTfGmfJISE">📋 积分明细</h3><button class="modal-close" onclick="closeModal('recMask')" data-page-node-id="oVSq4NLlNLrOnhG7poiRk2">✕</button></div>
+    <div class="modal-body" id="recBody" data-page-node-id="lc7sLRQoKlgLGdyxhgR7Zw"></div>
+  </div>
+</div>
+
+<!-- 密码设置弹窗 -->
+<div class="mask" id="pwdMask" data-page-node-id="IBh1mbqRQ9ip5S3cgiEHQN">
+  <div class="modal" style="width:min(420px,94vw)" data-page-node-id="qtG0VK51kzEKn7EkJekPSa">
+    <div class="modal-head" data-page-node-id="SpoI0nAvt7zzzlzsKuLAaP"><h3 data-page-node-id="FlXBaPbEAYrq757VbWVx7P">🔒 危险操作密码</h3><button class="modal-close" onclick="closeModal('pwdMask')" data-page-node-id="7Fy5iPUMH7UIKX9sqYR0DK">✕</button></div>
+    <div class="modal-body" data-page-node-id="p4TBUNiMU21PldValmTh3r">
+      <input class="pwd-in" id="pwdIn" type="password" placeholder="设置密码（留空并保存 = 清除密码）" data-page-node-id="GiqBxcMDU3RXPC15Wk8KYR">
+      <div class="tip-line" data-page-node-id="iedWqqWU8VjdfceZ7f68UD">密码仅以 SHA-256 哈希保存，不存明文。执行「加分 / 扣分 / 编辑明细 / 添加学生 / 删除学生 / 清除积分 / 导入数据」需先登录；忘记密码可在登录页连续输错 3 次后，输入管理密码 admin123 进入修改（原密码保留）。</div>
+    </div>
+    <div class="modal-foot" data-page-node-id="iO7l39CpxPmfyVqRwj7Rr1">
+      <button class="m-btn m-plain" onclick="closeModal('pwdMask')" data-page-node-id="kd6RrIxZPTs7vTQb4mocgh">取消</button>
+      <button class="m-btn m-primary" onclick="savePwd()" data-page-node-id="skXvAvIcFshn7LoLCuagB7">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 实用工具弹窗 -->
+<div class="mask" id="toolsMask">
+  <div class="modal" style="width:min(480px,94vw)">
+    <div class="modal-head"><h3>🧰 实用工具</h3><button class="modal-close" onclick="closeModal('toolsMask')">✕</button></div>
+    <div class="modal-body">
+      <div class="tool-grid">
+        <button class="tool-card" onclick="openTplManager()"><div class="tc-ico">📝</div><div class="tc-name">编辑加/扣分模板</div></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 模板管理弹窗 -->
+<div class="mask" id="tplMask">
+  <div class="modal">
+    <div class="modal-head"><h3>📝 编辑加/扣分模板</h3><button class="modal-close" onclick="saveTplManager()">✕</button></div>
+    <div class="modal-body">
+      <table class="tpl-table">
+        <thead><tr><th class="td-type">类型</th><th class="td-score">分数</th><th>原因</th><th style="width:56px">操作</th></tr></thead>
+        <tbody id="tplTbody"></tbody>
+      </table>
+      <div class="edit-actions"><button class="m-btn m-primary" onclick="addTplRow()">＋ 添加模板</button></div>
+      <div class="tip-line">修改后点击「保存」生效；原因为空或分数为 0 的行保存时会被自动过滤。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="m-btn m-plain" onclick="saveTplManager()">关闭（自动保存）</button>
+      <button class="m-btn m-primary" onclick="saveTplManager()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 登录验证弹窗 -->
+<div class="mask" id="loginMask">
+  <div class="modal" style="width:min(400px,94vw)">
+    <div class="modal-head"><h3>🔐 身份验证</h3><button class="modal-close" onclick="cancelLogin()">✕</button></div>
+    <div class="modal-body">
+      <div class="tip-line" id="loginHint" style="margin:0 0 10px"></div>
+      <div id="loginPwdRow">
+        <input class="pwd-in" id="loginIn" type="password" placeholder="请输入密码" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="m-btn m-primary" style="width:100%;margin-top:14px" onclick="doLogin()">登 录</button>
+      </div>
+      <button class="m-btn m-primary" id="btnGoPwd" style="width:100%;margin-top:6px;display:none" onclick="goSetPwd()">🔑 前往设置密码</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" data-page-node-id="iv4EpE6VNbR8xug0Vw7wOj"></div>
+
+<script>
+/* ================= 数据与存储 ================= */
+const LS_KEY = 'classScoreData_v1', LS_PWD = 'classScorePwd_v1', LS_PWDH = 'classScorePwdHash_v1', LS_THEME = 'classScoreTheme_v1';
+let state = { students: [], templates: [] };   // student: {id,name,group,score:[{type,score,note,active,time}]}
+let selected = new Set();                      // 选中的学生 id
+let boardRange = 'total';
+let scoreMode = '加';
+let editingRows = [];                          // 编辑器临时行
+let detailCtx = {type:'person', stuId:null};   // 明细弹窗上下文：个人或小组
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const d = JSON.parse(raw); state.students = d.students||[]; state.templates = d.templates||[]; }
+  }catch(e){ console.warn('读取数据失败', e); }
+}
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/* ================= 小工具 ================= */
+function toast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + (type||'');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.className='', 2200);
+}
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function fmtTime(ts){
+  const d = new Date(ts), p = n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function stuTotal(s, since){
+  let t = 0;
+  for(const e of s.score){ if(!e.active) continue; if(since && e.time < since) continue; t += (e.type==='加'?1:-1)*Math.abs(e.score); }
+  return t;
+}
+function weekStart(){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d.getTime(); }
+function monthStart(){ const d=new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); }
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+/* 分数显示：保留 1 位小数（整数不带小数点），绝对值超过 100 万用科学计数法 */
+function fmtScore(t){
+  const v = Number((Math.round(t*10)/10).toFixed(1));
+  if(Math.abs(v) > 1e6) return (v>0?'+':'') + v.toExponential(2);
+  return (v>0?'+':'') + v;
+}
+/* 文本截断：最多显示 8 个字 */
+function cut(s){ s = String(s==null?'':s); const a = Array.from(s); return a.length>8 ? a.slice(0,8).join('')+'…' : s; }
+/* SHA-256（纯 JS 同步实现；file:// 本地页面没有 crypto.subtle） */
+var _shaH = null, _shaK = null;
+function _shaInit(){
+  _shaH = []; _shaK = [];
+  var isComposite = {}, n = 0;
+  for(var cand = 2; n < 64; cand++){
+    if(!isComposite[cand]){
+      for(var i = cand * 2; i < 313; i += cand) isComposite[i] = true;
+      _shaH[n] = (Math.pow(cand, 0.5) * Math.pow(2,32)) | 0;
+      _shaK[n++] = (Math.pow(cand, 1/3) * Math.pow(2,32)) | 0;
+    }
+  }
+}
+function _rr(v, a){ return (v >>> a) | (v << (32 - a)); }
+function sha256(str){
+  str = unescape(encodeURIComponent(String(str)));
+  if(!_shaK) _shaInit();
+  var H = _shaH.slice(0,8), K = _shaK;
+  var words = [], bitLen = str.length * 8;
+  str += '\x80';
+  while(str.length % 64 !== 56) str += '\x00';
+  for(var i = 0; i < str.length; i++){
+    words[i >> 2] = (words[i >> 2] || 0) | (str.charCodeAt(i) << ((3 - (i % 4)) * 8));
+  }
+  words[words.length] = (bitLen / Math.pow(2,32)) | 0;
+  words[words.length] = bitLen | 0;
+  for(var j = 0; j < words.length; j += 16){
+    var w = words.slice(j, j+16);
+    var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(i = 0; i < 64; i++){
+      if(i < 16){ w[i] = w[i] | 0; }
+      else{
+        var w15 = w[i-15], w2 = w[i-2];
+        var s0 = _rr(w15,7) ^ _rr(w15,18) ^ (w15 >>> 3);
+        var s1 = _rr(w2,17) ^ _rr(w2,19) ^ (w2 >>> 10);
+        w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+      }
+      var S1 = _rr(e,6) ^ _rr(e,11) ^ _rr(e,25);
+      var ch = (e & f) ^ ((~e) & g);
+      var t1 = (h + S1 + ch + K[i] + w[i]) | 0;
+      var S0 = _rr(a,2) ^ _rr(a,13) ^ _rr(a,22);
+      var mj = (a & b) ^ (a & c) ^ (b & c);
+      var t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0;
+      d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    H[0]=(H[0]+a)|0; H[1]=(H[1]+b)|0; H[2]=(H[2]+c)|0; H[3]=(H[3]+d)|0;
+    H[4]=(H[4]+e)|0; H[5]=(H[5]+f)|0; H[6]=(H[6]+g)|0; H[7]=(H[7]+h)|0;
+  }
+  var out = '';
+  for(i = 0; i < 8; i++){
+    for(var k2 = 3; k2 >= 0; k2--){
+      var byte = (H[i] >>> (k2*8)) & 255;
+      out += (byte < 16 ? '0' : '') + byte.toString(16);
+    }
+  }
+  return out;
+}
+
+/* ================= 拼音首字母 ================= */
+const PY_BOUND = '啊芭擦搭蛾发噶哈击喀垃妈拿哦啪期然撒塌挖昔压匝';
+const PY_LETTER = 'ABCDEFGHJKLMNOPQRSTWXYZ';
+function pyInitial(ch){
+  if(/[a-zA-Z0-9]/.test(ch)) return ch.toLowerCase();
+  if(!/[\u4e00-\u9fa5]/.test(ch)) return '';
+  for(let i = PY_BOUND.length-1; i >= 0; i--){
+    try{ if(PY_BOUND[i].localeCompare(ch, 'zh-CN') <= 0) return PY_LETTER[i].toLowerCase(); }catch(e){}
+  }
+  return '';
+}
+function pinyinInitials(str){ let r=''; for(const ch of String(str)) r += pyInitial(ch); return r; }
+
+/* ================= 学生列表 / 搜索 / 排序 / 软键盘 ================= */
+let sortMode = 'group';    // 'group'=按小组排  'surname'=按姓氏排
+let guideSel = '全部';      // 引导列当前选中组
+function groupKey(s){ const g = (s.group||'').trim(); return g || '未分组'; }
+function surnameKey(s){ const c = (s.name||'').trim()[0]; return c ? (pyInitial(c) || '#') : '#'; }
+function toggleSort(){
+  sortMode = sortMode==='group' ? 'surname' : 'group';
+  guideSel = '全部';
+  document.getElementById('btnSort').textContent = '🔀 排序：' + (sortMode==='group'?'按小组':'按姓氏');
+  renderList();
+}
+function setGuide(g){ guideSel = g; renderList(); }
+function matchStu(s, q, qInit){
+  if(!q) return true;
+  if(s.name.toLowerCase().includes(q) || (s.group||'').toLowerCase().includes(q)) return true;
+  const init = pinyinInitials(s.name);
+  if(qInit && init.includes(qInit)) return true;
+  if(q && init.includes(q)) return true;
+  return false;
+}
+function renderList(){
+  const q = document.getElementById('searchIn').value.trim().toLowerCase();
+  const qInit = pinyinInitials(q);
+  const matched = state.students.filter(s=>matchStu(s, q, qInit));
+  const guideCol = document.getElementById('guideCol');
+  const cardsBox = document.getElementById('stuCards');
+
+  // 引导组：基于全部学生（稳定），显示 匹配数/总数
+  const cntAll = {}, cntHit = {};
+  const keyOf = sortMode==='group' ? groupKey : surnameKey;
+  state.students.forEach(s=>{ const k = keyOf(s); cntAll[k] = (cntAll[k]||0)+1; });
+  matched.forEach(s=>{ const k = keyOf(s); cntHit[k] = (cntHit[k]||0)+1; });
+  let keys = Object.keys(cntAll);
+  if(sortMode==='group'){ keys.sort((a,b)=>a.localeCompare(b,'zh')); }
+  else{ keys.sort((a,b)=> a==='#'?1 : b==='#'?-1 : a.localeCompare(b)); }   // 姓氏首字母 A-Z，'#' 沉底
+  if(guideSel !== '全部' && !cntAll[guideSel]) guideSel = '全部';
+
+  guideCol.innerHTML = '<button class="guide-item'+(guideSel==='全部'?' active':'')+'" onclick="setGuide(\'全部\')">'
+      + '<span>全部</span><span class="g-n">'+matched.length+'/'+state.students.length+'</span></button>'
+    + keys.map(k=>'<button class="guide-item'+(guideSel===k?' active':'')+(cntHit[k]?'':' dim')+'" onclick="setGuide(\''+esc(k)+'\')">'
+      + '<span>'+esc(cut(sortMode==='surname'?k.toUpperCase():k))+'</span><span class="g-n">'+(cntHit[k]||0)+'/'+cntAll[k]+'</span></button>').join('');
+
+  // 卡片：当前引导组 ∩ 搜索匹配
+  const cards = matched.filter(s=> guideSel==='全部' || keyOf(s)===guideSel);
+  if(sortMode==='group'){
+    cards.sort((a,b)=> groupKey(a).localeCompare(groupKey(b),'zh') || pinyinInitials(a.name).localeCompare(pinyinInitials(b.name)));
+  }else{
+    cards.sort((a,b)=> surnameKey(a).localeCompare(surnameKey(b)) || pinyinInitials(a.name).localeCompare(pinyinInitials(b.name)));
+  }
+  if(!state.students.length){
+    cardsBox.innerHTML = '<div class="empty-tip" style="grid-column:1/-1">暂无学生，请点击上方「学生编辑」添加</div>';
+  }else if(!cards.length){
+    cardsBox.innerHTML = '<div class="empty-tip" style="grid-column:1/-1">该分组下没有匹配「'+esc(q)+'」的学生</div>';
+  }else{
+    cardsBox.innerHTML = cards.map(s=>{
+      const t = stuTotal(s), cls = t>0?'plus':(t<0?'minus':'zero');
+      return '<div class="stu-card'+(selected.has(s.id)?' checked':'')+'" onclick="toggleSel(\''+s.id+'\',event)">'
+        + '<div class="sc-top">'
+        + '<input type="checkbox" '+(selected.has(s.id)?'checked':'')+' onclick="toggleSel(\''+s.id+'\',event)">'
+        + '<span class="s-name">'+esc(cut(s.name))+'</span>'
+        + '<span class="s-score '+cls+'">'+fmtScore(t)+'</span></div>'
+        + '<div class="sc-bot">'
+        + '<span class="s-group">'+esc(cut(groupKey(s)))+'</span>'
+        + '<button class="btn-detail" onclick="openDetail(\''+s.id+'\',event)">明细</button></div>'
+        + '</div>';
+    }).join('');
+  }
+  updateSelInfo();
+}
+/* --- 软键盘：点击直接写入搜索栏（保持焦点，不影响输入法打字） --- */
+function initKbd(){
+  const rows = ['qwertyuiop','asdfghjkl','zxcvbnm'];
+  const kbd = document.getElementById('softKbd');
+  kbd.innerHTML = rows.map(r=>'<div class="kbd-row">'
+      + r.split('').map(c=>'<button class="kbd-key" onclick="kbdKey(\''+c+'\')">'+c.toUpperCase()+'</button>').join('')
+      + '</div>').join('')
+    + '<div class="kbd-row"><button class="kbd-key wide" onclick="kbdClear()">清空</button><button class="kbd-key wide" onclick="kbdBack()">⌫ 退格</button></div>';
+}
+function kbdWrite(v){
+  const inp = document.getElementById('searchIn');
+  inp.focus();
+  const st = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? st;
+  inp.value = inp.value.slice(0, st) + v + inp.value.slice(en);
+  inp.selectionStart = inp.selectionEnd = st + v.length;
+  inp.dispatchEvent(new Event('input'));
+}
+function kbdKey(c){ kbdWrite(c); }
+function kbdBack(){
+  const inp = document.getElementById('searchIn');
+  inp.focus();
+  const st = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? st;
+  if(st !== en){ inp.value = inp.value.slice(0,st) + inp.value.slice(en); inp.selectionStart = inp.selectionEnd = st; }
+  else if(st > 0){ inp.value = inp.value.slice(0, st-1) + inp.value.slice(en); inp.selectionStart = inp.selectionEnd = st-1; }
+  inp.dispatchEvent(new Event('input'));
+}
+function kbdClear(){
+  const inp = document.getElementById('searchIn');
+  inp.focus(); inp.value = '';
+  inp.dispatchEvent(new Event('input'));
+}
+function toggleSel(id, ev){
+  ev && ev.stopPropagation();
+  if(selected.has(id)) selected.delete(id); else selected.add(id);
+  renderList();
+}
+function updateSelInfo(){
+  const info = document.getElementById('selInfo');
+  const n = selected.size;
+  document.getElementById('btnJia').disabled = document.getElementById('btnKou').disabled = n===0;
+  if(n === 0){ info.style.display = 'none'; return; }
+  const names = state.students.filter(s=>selected.has(s.id)).map(s=>s.name);
+  const show = names.slice(0,8).join('、') + (names.length>8 ? ' 等'+names.length+'人' : '');
+  info.style.display = 'flex';
+  info.innerHTML = '<span>✅ 已选择 <b>'+n+'</b> 个学生（<span class="names">'+esc(show)+'</span>）</span>'
+    + '<button class="clear-sel" onclick="selected.clear();renderList()">清空选择</button>';
+}
+
+/* ================= 加 / 扣分 ================= */
+function openScore(mode){
+  if(!selected.size) return;
+  requireLogin(()=>doOpenScore(mode), mode==='加'?'加分':'扣分');
+}
+function doOpenScore(mode){
+  scoreMode = mode;
+  document.getElementById('scoreTitle').textContent = '⚖️ 加/扣分（'+selected.size+' 个学生）';
+  document.querySelector('input[name=stype][value="'+mode+'"]').checked = true;
+  document.getElementById('scoreIn').value = '';
+  document.getElementById('noteIn').value = '';
+  // 恢复上次未执行的草稿
+  let draft = null;
+  try{ draft = JSON.parse(localStorage.getItem('classScoreDraft_v1')||'null'); }catch(e){}
+  if(draft && (draft.score > 0 || (draft.note||'').trim())){
+    document.querySelector('input[name=stype][value="'+(draft.type||mode)+'"]').checked = true;
+    document.getElementById('scoreIn').value = draft.score > 0 ? draft.score : '';
+    document.getElementById('noteIn').value = draft.note || '';
+    toast('已恢复上次未执行的草稿','ok');
+  }
+  renderTplGrid();
+  openModal('scoreMask');
+}
+/* 关闭加/扣分弹窗：有未执行内容时询问保存草稿或继续编辑 */
+function closeScoreAsk(){
+  const score = parseFloat(document.getElementById('scoreIn').value);
+  const note = document.getElementById('noteIn').value.trim();
+  const hasContent = (!isNaN(score) && score > 0) || note;
+  if(!hasContent){ closeModal('scoreMask'); return; }
+  if(confirm('尚未执行加/扣分，是否保存为草稿？\n（确定 = 保存草稿并关闭，取消 = 继续编辑）')){
+    localStorage.setItem('classScoreDraft_v1', JSON.stringify({
+      type: document.querySelector('input[name=stype]:checked').value,
+      score: isNaN(score) ? 0 : Math.abs(score),
+      note
+    }));
+    closeModal('scoreMask');
+    toast('草稿已保存，下次打开自动填充','ok');
+  }
+  /* 取消 → 继续编辑（不关闭） */
+}
+function renderTplGrid(){
+  const g = document.getElementById('tplGrid');
+  if(!state.templates.length){
+    g.innerHTML = '<div class="empty-tip" style="grid-column:1/-1;padding:10px 0">暂无模板，点击下方「＋ 添加模板」创建（如：课堂发言 +2）</div>';
+    return;
+  }
+  g.innerHTML = state.templates.map((t,i)=>{
+    const cls = t.type==='加'?'jia':'kou';
+    return '<button class="tpl-card" onclick="applyTpl('+i+')">'
+      + '<div class="t-reason">'+esc(t.reason)+'</div>'
+      + '<div><span class="t-type '+cls+'">'+t.type+'分</span><span class="t-score '+cls+'">'+(t.type==='加'?'+':'-')+Math.abs(t.score)+'</span></div>'
+      + '<span class="t-del" onclick="delTpl('+i+',event)">✕</span>'
+      + '</button>';
+  }).join('');
+}
+function applyTpl(i){
+  const t = state.templates[i]; if(!t) return;
+  document.querySelector('input[name=stype][value="'+t.type+'"]').checked = true;
+  document.getElementById('scoreIn').value = Math.abs(t.score);
+  document.getElementById('noteIn').value = t.reason;
+  toast('已填充模板「'+t.reason+'」，请确认后手动执行');
+}
+function delTpl(i, ev){
+  ev.stopPropagation();
+  if(!confirm('删除该模板？')) return;
+  state.templates.splice(i,1); save(); renderTplGrid();
+}
+function toggleTplForm(){ document.getElementById('tplForm').classList.toggle('show'); }
+function addTemplate(){
+  const reason = document.getElementById('tplFReason').value.trim();
+  const score = Math.abs(parseFloat(document.getElementById('tplFScore').value));
+  const type = document.getElementById('tplFType').value;
+  if(!reason){ toast('请填写模板原因','err'); return; }
+  if(!score || isNaN(score)){ toast('请填写模板分数','err'); return; }
+  state.templates.push({type, score, reason}); save(); renderTplGrid();
+  document.getElementById('tplFReason').value=''; document.getElementById('tplFScore').value='';
+  document.getElementById('tplForm').classList.remove('show');
+  toast('模板已添加','ok');
+}
+function confirmScore(){
+  const type = document.querySelector('input[name=stype]:checked').value;
+  let score = parseFloat(document.getElementById('scoreIn').value);
+  if(isNaN(score) || score <= 0){ toast('请输入有效的分数','err'); return; }
+  score = Math.abs(score);
+  const note = document.getElementById('noteIn').value.trim();
+  const time = Date.now();
+  for(const s of state.students){
+    if(!selected.has(s.id)) continue;
+    s.score.push({type, score, note, active:true, time});
+  }
+  save(); localStorage.removeItem('classScoreDraft_v1'); renderList(); renderBoard(); closeModal('scoreMask');
+  toast((type==='加'?'加分 ':'扣分 ')+score+' 分 × '+selected.size+' 人 完成','ok');
+  selected.clear(); renderList();
+}
+
+/* ================= 快捷数字键 .5 + 1~10 ================= */
+(function(){
+  const box = document.getElementById('quickBtns');
+  const half = document.createElement('button');
+  half.className = 'q-btn'; half.textContent = '.5'; half.title = '把分数的小数部分改为 .5';
+  half.onclick = ()=>{
+    const inp = document.getElementById('scoreIn');
+    const n = parseFloat(inp.value) || 0;
+    inp.value = Math.trunc(n) + 0.5;   // 整数部分保留，小数部分改 .5
+  };
+  box.appendChild(half);
+  for(let i=1;i<=10;i++){
+    const b = document.createElement('button');
+    b.className = 'q-btn'; b.textContent = i;
+    b.onclick = ()=>{ document.getElementById('scoreIn').value = i; };
+    box.appendChild(b);
+  }
+})();
+
+/* ================= 排行榜 ================= */
+let boardMode = 'person'; // person=按个人排 group=按小组排
+function setRange(r, btn){
+  boardRange = r;
+  document.querySelectorAll('.b-tab[data-range]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBoard();
+}
+function setMode(m, btn){
+  boardMode = m;
+  document.querySelectorAll('.b-tab[data-mode]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBoard();
+}
+function renderBoard(){
+  const since = boardRange==='week'?weekStart() : boardRange==='month'?monthStart() : 0;
+  const box = document.getElementById('boardList');
+  if(!state.students.length){
+    box.innerHTML = '<div class="empty-tip" style="padding:60px 0">🏆<br><br>暂无排行榜数据</div>';
+    return;
+  }
+  let rows = [];
+  if(boardMode === 'person'){
+    rows = state.students.map(s=>({key:s.id, label:s.name, sub:s.group||'', t:stuTotal(s, since)}));
+  }else{
+    const map = {};
+    state.students.forEach(s=>{
+      const g = s.group || '未分组';
+      if(!map[g]) map[g] = {t:0, n:0};
+      map[g].n++;
+      for(const e of s.score){ if(!e.active) continue; if(since && e.time < since) continue; map[g].t += (e.type==='加'?1:-1)*Math.abs(e.score); }
+    });
+    rows = Object.keys(map).map(g=>({key:g, label:g, sub:map[g].n+' 人', t:map[g].t}));
+  }
+  rows.sort((a,b)=>b.t-a.t);
+  box.innerHTML = rows.map((r,i)=>{
+    const cls = r.t>0?'plus':(r.t<0?'minus':'zero');
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return '<div class="b-row'+(i<3?' top'+(i+1):'')+'" onclick="boardOpenDetail(\''+esc(r.key)+'\')">'
+      + '<span class="rank">'+medal+'</span>'
+      + '<div class="b-info"><span class="b-name">'+esc(cut(r.label))+'</span>'
+      + (r.sub?'<span class="b-group">'+esc(cut(r.sub))+'</span>':'')+'</div>'
+      + '<span class="b-score '+cls+'">'+fmtScore(r.t)+'</span></div>';
+  }).join('');
+}
+
+/* ================= 学生编辑器 ================= */
+function openEditor(){
+  editingRows = state.students.map(s=>({id:s.id, name:s.name, group:s.group||''}));
+  renderEditTable();
+  document.getElementById('pasteArea').value = '';
+  openModal('editorMask');
+}
+function renderEditTable(){
+  const tb = document.getElementById('editTbody');
+  if(!editingRows.length){ tb.innerHTML = '<tr><td colspan="4" class="empty-tip">暂无学生，点击「添加一行」或粘贴 Excel 数据</td></tr>'; return; }
+  tb.innerHTML = editingRows.map((r,i)=>
+    '<tr><td>'+(i+1)+'</td>'
+    + '<td><input value="'+esc(r.name)+'" placeholder="姓名" oninput="editingRows['+i+'].name=this.value"></td>'
+    + '<td><input value="'+esc(r.group)+'" placeholder="小组（可不填）" oninput="editingRows['+i+'].group=this.value"></td>'
+    + '<td><button class="row-del" onclick="editingRows.splice('+i+',1);renderEditTable()">🗑</button></td></tr>'
+  ).join('');
+}
+function addEditRow(){ editingRows.push({id:null, name:'', group:''}); renderEditTable(); }
+function parsePaste(){
+  const raw = document.getElementById('pasteArea').value;
+  if(!raw.trim()){ toast('粘贴区为空','err'); return; }
+  let added = 0;
+  raw.split(/\r?\n/).forEach(line=>{
+    if(!line.trim()) return;
+    const cells = line.split('\t').map(c=>c.trim()).filter(c=>c!=='');
+    let name='', group='';
+    if(cells.length >= 2){ name=cells[0]; group=cells[1]; }
+    else{
+      const m = line.trim().split(/\s{1,}/);
+      name = m[0]||''; group = m[1]||'';
+    }
+    if(!name) return;
+    if(/^(姓名|学生姓名|name)$/i.test(name) && (group===''||/^(小组|组名|group)$/i.test(group))) return; // 跳过表头
+    editingRows.push({id:null, name, group});
+    added++;
+  });
+  renderEditTable();
+  document.getElementById('pasteArea').value='';
+  toast(added ? '已追加 '+added+' 行，请检查后保存' : '未识别到有效数据，请检查格式', added?'ok':'err');
+}
+function saveEditor(){
+  const rows = editingRows.filter(r=>r.name.trim());
+  if(!rows.length){ toast('至少需要一名学生（姓名不能为空）','err'); return; }
+  const names = rows.map(r=>r.name.trim());
+  if(new Set(names).size !== names.length){ toast('存在重复姓名，请检查','err'); return; }
+  requireLogin(()=>{
+    const oldMap = {}; state.students.forEach(s=>oldMap[s.id]=s);
+    state.students = rows.map(r=>{
+      if(r.id && oldMap[r.id]){
+        const s = oldMap[r.id];
+        s.name = r.name.trim(); s.group = r.group.trim();
+        return s; // 保留原有积分记录
+      }
+      return {id:uid(), name:r.name.trim(), group:r.group.trim(), score:[]};
+    });
+    selected.clear(); save(); renderList(); renderBoard(); closeModal('editorMask');
+    toast('学生数据已保存，共 '+state.students.length+' 人','ok');
+  }, '添加/删除学生');
+}
+
+/* ================= 积分明细（含撤销，支持个人/小组） ================= */
+function openDetail(id, ev){
+  ev && ev.stopPropagation();
+  const s = state.students.find(x=>x.id===id); if(!s) return;
+  detailCtx = {type:'person', stuId:id};
+  document.getElementById('recTitle').textContent = '📋 '+s.name+' 的积分明细';
+  renderDetail();
+  openModal('recMask');
+}
+function openGroupDetail(g, ev){
+  ev && ev.stopPropagation();
+  detailCtx = {type:'group', group:g};
+  document.getElementById('recTitle').textContent = '📋 小组「'+cut(g)+'」积分明细';
+  renderDetail();
+  openModal('recMask');
+}
+function boardOpenDetail(key){
+  if(boardMode === 'person') openDetail(key); else openGroupDetail(key);
+}
+function renderDetail(){
+  const body = document.getElementById('recBody');
+  let list = [];   // {s, idx, e}
+  if(detailCtx.type === 'person'){
+    const s = state.students.find(x=>x.id===detailCtx.stuId);
+    if(!s) return;
+    s.score.forEach((e,idx)=>list.push({s, idx, e}));
+  }else{
+    state.students.filter(x=>groupKey(x)===detailCtx.group)
+      .forEach(s=>s.score.forEach((e,idx)=>list.push({s, idx, e})));
+  }
+  if(!list.length){ body.innerHTML = '<div class="empty-tip">暂无积分记录</div>'; return; }
+  list.sort((a,b)=>b.e.time-a.e.time);
+  body.innerHTML = list.map(r=>{
+    const e = r.e, cls = e.type==='加'?'jia':'kou';
+    return '<div class="rec-row'+(e.active?'':' off')+'">'
+      + (detailCtx.type==='group' ? '<span class="r-name">'+esc(cut(r.s.name))+'</span>' : '')
+      + '<span class="r-time">'+fmtTime(e.time)+'</span>'
+      + '<span class="r-type '+cls+'">'+e.type+'分</span>'
+      + '<span class="r-score '+cls+'">'+(e.type==='加'?'+':'-')+Math.abs(e.score)+'</span>'
+      + '<span class="r-note'+(e.note?'':' empty')+'">'+(e.note?esc(e.note):'（无备注）')+'</span>'
+      + '<button class="btn-toggle '+(e.active?'on':'off')+'" onclick="toggleRec(\''+r.s.id+'\','+r.idx+')">'+(e.active?'撤销':'恢复')+'</button>'
+      + '</div>';
+  }).join('');
+}
+function toggleRec(stuId, idx){
+  const s = state.students.find(x=>x.id===stuId); if(!s) return;
+  requireLogin(()=>{
+    s.score[idx].active = !s.score[idx].active;
+    save(); renderDetail(); renderList(); renderBoard();
+    toast(s.name+' '+(s.score[idx].active ? '已恢复该记录' : '已撤销该记录（不再计入积分）'),'ok');
+  }, '编辑积分明细');
+}
+
+/* ================= 导入 / 导出 ================= */
+function download(filename, content, mime){
+  const blob = new Blob([content], {type:mime||'application/octet-stream'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+}
+function exportAll(){
+  const data = {app:'班级积分管理系统', exportTime:fmtTime(Date.now()),
+    students: state.students.map(s=>({name:s.name, group:s.group||'',
+      score: s.score.map(e=>({type:e.type, score:Math.abs(e.score), note:e.note||'', active:e.active!==false, time:e.time}))})),
+    templates: state.templates};
+  download('班级积分数据_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(data, null, 2), 'application/json');
+  toast('已导出全部数据（学生 + 积分 + 模板）','ok');
+}
+function importAll(input){
+  const file = input.files[0]; input.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const d = JSON.parse(reader.result);
+      const stu = Array.isArray(d.students) ? d.students : null;
+      if(!stu) throw new Error('缺少 students 字段');
+      if(state.students.length && !confirm('导入将覆盖当前全部数据（共 '+state.students.length+' 名学生），是否继续？')) return;
+      state.students = stu.map(s=>({
+        id: uid(), name: String(s.name||'').trim(), group: String(s.group||'').trim(),
+        score: (Array.isArray(s.score)?s.score:[]).map(e=>({
+          type: e.type==='扣'?'扣':'加', score: Math.abs(parseFloat(e.score)||0),
+          note: String(e.note||''), active: e.active!==false, time: Number(e.time)||Date.now()
+        }))
+      })).filter(s=>s.name);
+      if(Array.isArray(d.templates)){
+        state.templates = d.templates.filter(t=>t && t.reason).map(t=>({
+          type: t.type==='扣'?'扣':'加', score: Math.abs(parseFloat(t.score)||1), reason: String(t.reason)
+        }));
+      }
+      selected.clear(); save(); renderList(); renderBoard();
+      toast('导入成功：'+state.students.length+' 名学生','ok');
+    }catch(err){ toast('导入失败：文件格式不正确','err'); console.warn(err); }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+function exportDetail(){
+  if(!state.students.length){ toast('暂无学生数据','err'); return; }
+  let csv = '\uFEFF时间,姓名,小组,类型,分数,备注,是否生效\n';
+  const rows = [];
+  state.students.forEach(s=>{
+    s.score.forEach(e=>rows.push([fmtTime(e.time), s.name, s.group||'', e.type, Math.abs(e.score), e.note||'', e.active!==false?'是':'否(已撤销)']));
+  });
+  if(!rows.length){ toast('暂无积分记录','err'); return; }
+  rows.sort((a,b)=>b[0].localeCompare(a[0]));
+  csv += rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  download('积分明细_'+new Date().toISOString().slice(0,10)+'.csv', csv, 'text/csv;charset=utf-8');
+  toast('积分明细已导出（CSV，可用 Excel 打开）','ok');
+}
+function importClick(){
+  requireLogin(()=>document.getElementById('importFile').click(), '导入数据');
+}
+
+/* ================= 实用工具 / 模板管理 ================= */
+function openTools(){ openModal('toolsMask'); }
+function openTplManager(){ closeModal('toolsMask'); renderTplTable(); openModal('tplMask'); }
+function renderTplTable(){
+  const tb = document.getElementById('tplTbody');
+  if(!state.templates.length){ tb.innerHTML = '<tr><td colspan="4" class="empty-tip">暂无模板，点击「添加模板」创建</td></tr>'; return; }
+  tb.innerHTML = state.templates.map((t,i)=>
+    '<tr>'
+    + '<td class="td-type"><select onchange="state.templates['+i+'].type=this.value">'
+    + '<option value="加"'+(t.type==='加'?' selected':'')+'>加分</option>'
+    + '<option value="扣"'+(t.type==='扣'?' selected':'')+'>扣分</option></select></td>'
+    + '<td class="td-score"><input type="number" min="0" value="'+Math.abs(t.score)+'" oninput="state.templates['+i+'].score=Math.abs(parseFloat(this.value)||0)"></td>'
+    + '<td><input value="'+esc(t.reason)+'" placeholder="原因" oninput="state.templates['+i+'].reason=this.value"></td>'
+    + '<td><button class="row-del" onclick="delTplRow('+i+')">🗑</button></td>'
+    + '</tr>'
+  ).join('');
+}
+function addTplRow(){ state.templates.push({type:'加', score:1, reason:''}); renderTplTable(); }
+function delTplRow(i){ state.templates.splice(i,1); renderTplTable(); }
+function saveTplManager(){
+  state.templates = state.templates.filter(t=>String(t.reason||'').trim() && t.score>0);
+  save(); closeModal('tplMask');
+  toast('模板已保存，共 '+state.templates.length+' 个','ok');
+}
+
+/* ================= 登录系统 + 权限 ================= */
+function isLogged(){ return sessionStorage.getItem('cms_login') === '1'; }
+function hasPwd(){ return !!(localStorage.getItem(LS_PWDH) || localStorage.getItem(LS_PWD)); }
+// 旧版明文密码迁移为 SHA-256 哈希
+(function migratePwd(){
+  const legacy = localStorage.getItem(LS_PWD);
+  if(legacy && !localStorage.getItem(LS_PWDH)) localStorage.setItem(LS_PWDH, sha256(legacy));
+  localStorage.removeItem(LS_PWD);
+})();
+let pendingAction = null;   // 登录成功后要继续执行的操作
+function requireLogin(cb, actionName){
+  if(isLogged()) return cb();
+  pendingAction = cb;   // 登录/设置密码成功后自动继续
+  const hint = document.getElementById('loginHint');
+  const pwdRow = document.getElementById('loginPwdRow');
+  const goPwd = document.getElementById('btnGoPwd');
+  if(!hasPwd()){
+    // 未设置密码：提示先设置密码并登录
+    hint.textContent = '执行「' + actionName + '」前，请先设置密码并登录';
+    pwdRow.style.display = 'none';
+    goPwd.style.display = 'block';
+  }else{
+    hint.textContent = '执行「' + actionName + '」需要先登录';
+    pwdRow.style.display = 'block';
+    goPwd.style.display = 'none';
+  }
+  openModal('loginMask');
+  document.getElementById('loginIn').value = '';
+  if(hasPwd()) setTimeout(()=>document.getElementById('loginIn').focus(), 60);
+}
+function goSetPwd(){
+  closeModal('loginMask');   // pendingAction 保留，设置完自动继续
+  document.getElementById('pwdIn').value = '';
+  openModal('pwdMask');
+}
+let loginFails = 0, adminChannel = false;   // 连续输错计数 / 管理通道状态
+function doLogin(){
+  const v = document.getElementById('loginIn').value;
+  if(v === 'admin123' && loginFails >= 3){
+    // 管理通道：原密码保留，直接进入密码修改页
+    adminChannel = true; pendingAction = null;
+    closeModal('loginMask');
+    document.getElementById('pwdIn').value = '';
+    openModal('pwdMask');
+    toast('管理通道已开启：原密码保留，可设置新密码','ok');
+    return;
+  }
+  if(sha256(v) !== localStorage.getItem(LS_PWDH)){
+    loginFails++;
+    toast('密码错误' + (loginFails >= 3 ? '，忘记密码可输入管理密码 admin123 进入修改' : ''), 'err');
+    return;
+  }
+  loginFails = 0;
+  const act = pendingAction; pendingAction = null;
+  sessionStorage.setItem('cms_login','1');
+  closeModal('loginMask'); updateLoginUI();
+  toast('登录成功','ok');
+  if(act) act();
+}
+function cancelLogin(){ pendingAction = null; closeModal('loginMask'); }
+function logout(){
+  if(!isLogged()){ toast('当前未登录','err'); return; }
+  sessionStorage.removeItem('cms_login');
+  updateLoginUI();
+  toast('已登出','ok');
+}
+function updateLoginUI(){
+  const st = document.getElementById('loginStatus');
+  const lo = document.getElementById('btnLogout');
+  if(isLogged()){ st.textContent = '🟢 已登录'; lo.classList.remove('dim'); }
+  else{ st.textContent = hasPwd() ? '⚪ 未登录' : '⚪ 未登录（未设置密码）'; lo.classList.add('dim'); }
+}
+function clearScores(){
+  const has = state.students.some(s=>s.score.length);
+  if(!has){ toast('当前没有积分记录','err'); return; }
+  requireLogin(()=>{
+    if(!confirm('⚠️ 确定清除所有学生的积分记录？（学生名单保留）')) return;
+    state.students.forEach(s=>s.score=[]); save(); renderList(); renderBoard();
+    toast('已清除所有积分','ok');
+  }, '清除所有积分');
+}
+function openPwd(){
+  if(!hasPwd()){   // 首次设置：不拦截（否则引导流程死循环）
+    document.getElementById('pwdIn').value = '';
+    openModal('pwdMask');
+    return;
+  }
+  requireLogin(()=>{
+    document.getElementById('pwdIn').value = localStorage.getItem(LS_PWD)||'';
+    openModal('pwdMask');
+  }, '密码设置');
+}
+function savePwd(){
+  const v = document.getElementById('pwdIn').value;
+  const had = hasPwd();
+  const viaAdmin = adminChannel;
+  adminChannel = false;
+  if(v) localStorage.setItem(LS_PWDH, sha256(v)); else localStorage.removeItem(LS_PWDH);
+  localStorage.removeItem(LS_PWD);
+  if(v && (!had || viaAdmin)) sessionStorage.setItem('cms_login','1');
+  if(!v) sessionStorage.removeItem('cms_login');
+  closeModal('pwdMask'); updateLoginUI();
+  toast(v ? (had ? '密码已修改（SHA-256 哈希存储）' : '密码已设置，已自动登录') : '密码已清除','ok');
+  if(v && !had){
+    const act = pendingAction; pendingAction = null;
+    if(act) setTimeout(act, 100);   // 继续之前被拦下的操作
+  }
+}
+
+/* ================= 主题 ================= */
+const THEMES = ['default','violet','teal','sunset'];
+function cycleTheme(){
+  const cur = document.documentElement.dataset.theme;
+  const next = THEMES[(THEMES.indexOf(cur)+1) % THEMES.length];
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem(LS_THEME, next);
+  toast('主题已切换','ok');
+}
+
+/* ================= 初始化 ================= */
+load();
+const savedTheme = localStorage.getItem(LS_THEME);
+if(savedTheme && THEMES.includes(savedTheme)) document.documentElement.dataset.theme = savedTheme;
+initKbd(); renderList(); renderBoard(); updateLoginUI();
+// 点遮罩关闭：编辑/模板弹窗自动保存，加扣分弹窗走草稿询问
+document.querySelectorAll('.mask').forEach(m=>{
+  m.addEventListener('click', e=>{
+    if(e.target !== m) return;
+    if(m.id === 'loginMask'){ pendingAction = null; m.classList.remove('show'); return; }
+    if(m.id === 'editorMask'){ saveEditor(); return; }      // 校验不过会留在弹窗内
+    if(m.id === 'tplMask'){ saveTplManager(); return; }
+    if(m.id === 'scoreMask'){ closeScoreAsk(); return; }
+    m.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>
