@@ -411,7 +411,7 @@
     <div class="modal-head" data-page-node-id="SpoI0nAvt7zzzlzsKuLAaP"><h3 data-page-node-id="FlXBaPbEAYrq757VbWVx7P">🔒 危险操作密码</h3><button class="modal-close" onclick="closeModal('pwdMask')" data-page-node-id="7Fy5iPUMH7UIKX9sqYR0DK">✕</button></div>
     <div class="modal-body" data-page-node-id="p4TBUNiMU21PldValmTh3r">
       <input class="pwd-in" id="pwdIn" type="password" placeholder="设置密码（留空并保存 = 清除密码）" data-page-node-id="GiqBxcMDU3RXPC15Wk8KYR">
-      <div class="tip-line" data-page-node-id="iedWqqWU8VjdfceZ7f68UD">密码仅以 SHA-256 哈希保存，不存明文。执行「加分 / 扣分 / 编辑明细 / 添加学生 / 删除学生 / 清除积分 / 导入数据」需先登录；忘记密码可在登录页连续输错 3 次后，输入管理密码 admin123 进入修改（原密码保留）。</div>
+      <div class="tip-line" data-page-node-id="iedWqqWU8VjdfceZ7f68UD">密码仅以 SHA-256 哈希保存，不存明文。执行「加分 / 扣分 / 编辑明细 / 添加学生 / 删除学生 / 清除积分 / 导入数据」需先登录；忘记密码可在登录页连续输错 3 次后，输入 < 管理密码 > 进入修改（原密码保留）。</div>
     </div>
     <div class="modal-foot" data-page-node-id="iO7l39CpxPmfyVqRwj7Rr1">
       <button class="m-btn m-plain" onclick="closeModal('pwdMask')" data-page-node-id="kd6RrIxZPTs7vTQb4mocgh">取消</button>
@@ -1112,7 +1112,7 @@ function doLogin(){
   }
   if(sha256(v) !== localStorage.getItem(LS_PWDH)){
     loginFails++;
-    toast('密码错误' + (loginFails >= 3 ? '，忘记密码可输入管理密码 admin123 进入修改' : ''), 'err');
+    toast('密码错误' + (loginFails >= 3 ? '，忘记密码可输入 < 管理密码 > 进入修改' : ''), 'err');
     return;
   }
   loginFails = 0;
