@@ -226,6 +226,40 @@
   .tpl-table select,.tpl-table input{padding:7px 8px; border:1px solid #dde2f2; border-radius:7px; font-size:13px; width:100%;}
   .tpl-table .td-score{width:90px;} .tpl-table .td-type{width:100px;}
 
+  /* ===== 随机抽人 ===== */
+  .pick-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:10px;}
+  @media (max-width:640px){ .pick-grid{grid-template-columns:repeat(4,1fr);} }
+  .pick-cell{border:1.5px solid #e6e9f6; background:#fbfcff; border-radius:9px; padding:8px 4px; text-align:center; font-size:13px; font-weight:600; cursor:pointer; transition:.12s; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pick-cell:hover{border-color:var(--p1); background:#f5f8ff;}
+  .pick-cell.on{background:var(--pg); color:#fff; border-color:transparent; box-shadow:0 3px 8px rgba(74,92,240,.3);}
+  .pick-cell.drawn{opacity:.38; cursor:not-allowed; text-decoration:line-through;}
+  .pick-cell .p-g{display:block; font-size:10px; font-weight:400; opacity:.75;}
+  .pick-quick{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .pq-btn{background:#f0f2fa; color:var(--p2); border-radius:9px; padding:7px 16px; font-size:13px; font-weight:700; transition:.12s;}
+  .pq-btn:hover{background:var(--pg); color:#fff;}
+  .pick-opts{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:14px; background:#f7f8fe; border-radius:12px; padding:12px 14px;}
+  .pick-opts label{font-size:13px; color:var(--sub); display:flex; align-items:center; gap:6px;}
+  .pick-opts input[type=number]{width:70px; padding:7px 10px; border:2px solid #e3e7f5; border-radius:8px; font-size:14px; font-weight:700;}
+  .pick-opts input[type=range]{width:150px; accent-color:var(--p1);}
+  .pick-opts .dur-val{font-weight:800; color:var(--p2); min-width:36px; text-align:center;}
+  .pick-btns{display:flex; gap:10px; margin-top:14px;}
+  .pick-draw{flex:1; background:linear-gradient(135deg,#f472b6,#db2777); color:#fff; font-size:16px; font-weight:800; padding:12px; border-radius:12px; box-shadow:0 6px 14px rgba(219,39,119,.3);}
+  .pick-draw:disabled{opacity:.45; cursor:not-allowed;}
+  .pick-draw:not(:disabled):hover{filter:brightness(1.08);}
+  .pick-result{margin-top:14px; min-height:74px; background:#fff7fb; border:2px dashed #f9a8d4; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:12px;}
+  .pick-result .pr-names{font-size:22px; font-weight:800; color:var(--p2); letter-spacing:1px; word-break:break-all; text-align:center;}
+  .pick-result .pr-label{font-size:12px; color:var(--sub);}
+  .pick-result.rolling{border-style:solid; border-color:var(--p1); background:#f5f8ff;}
+  .pick-hist{margin-top:14px;}
+  .pick-hist .ph-row{display:flex; align-items:center; gap:8px; padding:7px 10px; border-bottom:1px solid #f2f4fb; font-size:13px;}
+  .pick-hist .ph-time{color:var(--sub); font-size:12px; width:118px; flex-shrink:0;}
+  .pick-hist .ph-names{flex:1; font-weight:600; word-break:break-all;}
+  .pick-hist .ph-clear{font-size:12px; color:var(--red); background:transparent; text-decoration:underline; padding:2px 4px;}
+  .ph-show{background:#eef1fa; color:#8a92ab; border-radius:999px; padding:3px 12px; font-size:12px; font-weight:600; flex-shrink:0; transition:.12s;}
+  .ph-show:hover{background:rgba(91,124,250,.15); color:var(--p2);}
+  .pr-item{cursor:pointer; border-bottom:2px dotted rgba(59,91,219,.45);}
+  .pr-item:hover{opacity:.75;}
+
   /* toast */
   #toast{position:fixed; top:76px; left:50%; transform:translateX(-50%) translateY(-16px); background:rgba(30,35,60,.92); color:#fff; padding:10px 22px; border-radius:24px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:999;}
   #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
@@ -259,7 +293,8 @@
   <!-- 左侧栏 -->
   <aside class="sidebar" data-page-node-id="TmIipZvW1JM2ag5T05AXMx">
     <button class="nav-item active" data-page-node-id="tQYaYIoQTHazGeiHSReEWJ"><span class="ico" data-page-node-id="51GAzC4zO1MyqRKbfKRHww">👥</span>学生管理</button>
-    <button class="tool-item" onclick="openTools()" data-page-node-id="k6yDDwB5TtfmsO53dNigKt">🧰<br data-page-node-id="gL3TwW10Iu1Dva7coXsujm">实用工具</button>
+    <button class="tool-item" onclick="openPicker()" data-page-node-id="k6yDDwB5TtfmsO53dNigKt">🎲<br data-page-node-id="gL3TwW10Iu1Dva7coXsujm">随机抽人</button>
+    <button class="tool-item" onclick="openTools()" style="margin-top:2px">🧰<br>实用工具</button>
     <div class="spacer" data-page-node-id="TCVVBosZIGlmrd5iTwVzhk"></div>
   </aside>
 
@@ -331,7 +366,7 @@
     <div class="modal-head" data-page-node-id="W5jhcSE5RgKS4WvtPRTgmn"><h3 data-page-node-id="QuguF64AkobfY7lt411XI6">✏️ 学生编辑（表格）</h3><button class="modal-close" onclick="saveEditor()" data-page-node-id="tFtEEcxUoeCewnsgB3kHHx">✕</button></div>
     <div class="modal-body" data-page-node-id="jNTP2MoI6qiTE2UAoKdPVE">
       <table class="stu-table" data-page-node-id="i56qIYEIXCkZIGf6ifKokC">
-        <thead data-page-node-id="aSuoUDW0Dr2zOqhF5f2w8n"><tr data-page-node-id="zkHoXkQZ9t3CNW8V0UZsbG"><th style="width:46px" data-page-node-id="E1g9JY2W2QByySTnwsHPyg">序号</th><th data-page-node-id="XuKSsMtBGzTcUzkyE0FoXO">姓名</th><th data-page-node-id="2lRYupNsooA3qXOF3XRdAx">小组</th><th style="width:56px" data-page-node-id="j6iwwOrRY5t9JPRAHDeSTj">操作</th></tr></thead>
+        <thead data-page-node-id="aSuoUDW0Dr2zOqhF5f2w8n"><tr data-page-node-id="zkHoXkQZ9t3CNW8V0UZsbG"><th style="width:46px" data-page-node-id="E1g9JY2W2QByySTnwsHPyg">序号</th><th data-page-node-id="XuKSsMtBGzTcUzkyE0FoXO">姓名</th><th style="width:80px">性别</th><th style="width:76px">学号</th><th data-page-node-id="2lRYupNsooA3qXOF3XRdAx">小组</th><th style="width:56px" data-page-node-id="j6iwwOrRY5t9JPRAHDeSTj">操作</th></tr></thead>
         <tbody id="editTbody" data-page-node-id="9UrTJPKV8ACK6ZKy4uP85H"></tbody>
       </table>
       <div class="edit-actions" data-page-node-id="GPBArPpi7k03g0DBO0ZLaF">
@@ -466,12 +501,49 @@
   </div>
 </div>
 
+<!-- 随机抽人弹窗 -->
+<div class="mask" id="pickMask">
+  <div class="modal wide">
+    <div class="modal-head"><h3>🎲 随机抽人</h3><button class="modal-close" onclick="closeModal('pickMask')">✕</button></div>
+    <div class="modal-body">
+      <div class="pick-quick">
+        <button class="pq-btn" onclick="pickQuick('all')">全选</button>
+        <button class="pq-btn" onclick="pickQuick('male')">仅男生</button>
+        <button class="pq-btn" onclick="pickQuick('female')">仅女生</button>
+        <button class="pq-btn" onclick="pickQuick('invert')">反选</button>
+        <button class="pq-btn" id="pickModeBtn" onclick="togglePickNumMode()">🔢 按学号显示</button>
+        <button class="pq-btn" style="margin-left:auto;background:rgba(240,68,56,.1);color:var(--red)" onclick="pickReset()">🔄 重置选择</button>
+      </div>
+      <div class="pick-grid" id="pickGrid"></div>
+      <div class="pick-opts">
+        <label>一次抽取 <input type="number" id="pickCount" min="1" value="1"> 人</label>
+        <label>抽取时长
+          <input type="range" id="pickDur" min="1" max="10" value="3" oninput="document.getElementById('pickDurVal').textContent=this.value+'s'">
+          <span class="dur-val" id="pickDurVal">3s</span>
+        </label>
+        <label><input type="checkbox" id="pickRepeat"> 可重复抽取</label>
+      </div>
+      <div class="pick-btns">
+        <button class="pick-draw" id="pickGo" onclick="startDraw()">🎯 开始抽取</button>
+      </div>
+      <div class="pick-result" id="pickResult">
+        <span class="pr-label">抽取结果</span>
+        <div class="pr-names" id="prNames">—</div>
+      </div>
+      <div class="pick-hist">
+        <div class="sec-title" style="margin:12px 0 4px">📜 抽取记录</div>
+        <div id="pickHist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast" data-page-node-id="iv4EpE6VNbR8xug0Vw7wOj"></div>
 
 <script>
 /* ================= 数据与存储 ================= */
 const LS_KEY = 'classScoreData_v1', LS_PWD = 'classScorePwd_v1', LS_PWDH = 'classScorePwdHash_v1', LS_THEME = 'classScoreTheme_v1';
-let state = { students: [], templates: [] };   // student: {id,name,group,score:[{type,score,note,active,time}]}
+let state = { students: [], templates: [], drawRecords: [] };   // student: {id,name,gender,group,score:[{type,score,note,active,time}]}
 let selected = new Set();                      // 选中的学生 id
 let boardRange = 'total';
 let scoreMode = '加';
@@ -482,8 +554,23 @@ function uid(){ return Date.now().toString(36) + Math.random().toString(36).slic
 function load(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(raw){ const d = JSON.parse(raw); state.students = d.students||[]; state.templates = d.templates||[]; }
+    if(raw){ const d = JSON.parse(raw); state.students = d.students||[]; state.templates = d.templates||[]; state.drawRecords = d.drawRecords||[]; }
+    // 性别字段是后补的，旧数据没有值，统一归一成「男」
+    let genderFixed = false;
+    state.students.forEach(s=>{ if(s.gender!=='男' && s.gender!=='女'){ s.gender='男'; genderFixed=true; } });
+    ensureSids();
+    if(genderFixed) save();
   }catch(e){ console.warn('读取数据失败', e); }
+}
+/* 学号：旧数据没有 sid，按顺序从 1 起补默认值，不与已有学号重复 */
+function nextSid(used){ let n=1; while(used.has(String(n))) n++; return String(n); }
+function ensureSids(){
+  const used = new Set();
+  state.students.forEach(s=>{ const v=String(s.sid??'').trim(); if(v) used.add(v); });
+  state.students.forEach(s=>{
+    const v=String(s.sid??'').trim();
+    if(v){ s.sid=v; } else { s.sid=nextSid(used); used.add(s.sid); }
+  });
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
@@ -866,22 +953,26 @@ function renderBoard(){
 
 /* ================= 学生编辑器 ================= */
 function openEditor(){
-  editingRows = state.students.map(s=>({id:s.id, name:s.name, group:s.group||''}));
+  editingRows = state.students.map(s=>({id:s.id, name:s.name, gender:s.gender||'', group:s.group||'', sid:String(s.sid??'')}));
   renderEditTable();
   document.getElementById('pasteArea').value = '';
   openModal('editorMask');
 }
 function renderEditTable(){
   const tb = document.getElementById('editTbody');
-  if(!editingRows.length){ tb.innerHTML = '<tr><td colspan="4" class="empty-tip">暂无学生，点击「添加一行」或粘贴 Excel 数据</td></tr>'; return; }
+  if(!editingRows.length){ tb.innerHTML = '<tr><td colspan="6" class="empty-tip">暂无学生，点击「添加一行」或粘贴 Excel 数据</td></tr>'; return; }
   tb.innerHTML = editingRows.map((r,i)=>
     '<tr><td>'+(i+1)+'</td>'
     + '<td><input value="'+esc(r.name)+'" placeholder="姓名" oninput="editingRows['+i+'].name=this.value"></td>'
+    + '<td><select onchange="editingRows['+i+'].gender=this.value">'
+    + '<option value="男"'+(r.gender!=='女'?' selected':'')+'>男</option>'
+    + '<option value="女"'+(r.gender==='女'?' selected':'')+'>女</option></select></td>'
+    + '<td><input value="'+esc(r.sid||'')+'" placeholder="学号" oninput="editingRows['+i+'].sid=this.value"></td>'
     + '<td><input value="'+esc(r.group)+'" placeholder="小组（可不填）" oninput="editingRows['+i+'].group=this.value"></td>'
     + '<td><button class="row-del" onclick="editingRows.splice('+i+',1);renderEditTable()">🗑</button></td></tr>'
   ).join('');
 }
-function addEditRow(){ editingRows.push({id:null, name:'', group:''}); renderEditTable(); }
+function addEditRow(){ editingRows.push({id:null, name:'', gender:'男', group:'', sid:''}); renderEditTable(); }
 function parsePaste(){
   const raw = document.getElementById('pasteArea').value;
   if(!raw.trim()){ toast('粘贴区为空','err'); return; }
@@ -889,15 +980,15 @@ function parsePaste(){
   raw.split(/\r?\n/).forEach(line=>{
     if(!line.trim()) return;
     const cells = line.split('\t').map(c=>c.trim()).filter(c=>c!=='');
-    let name='', group='';
-    if(cells.length >= 2){ name=cells[0]; group=cells[1]; }
+    let name='', group='', sid='';
+    if(cells.length >= 2){ name=cells[0]; group=cells[1]; sid=cells[2]||''; }
     else{
       const m = line.trim().split(/\s{1,}/);
-      name = m[0]||''; group = m[1]||'';
+      name = m[0]||''; group = m[1]||''; sid = m[2]||'';
     }
     if(!name) return;
     if(/^(姓名|学生姓名|name)$/i.test(name) && (group===''||/^(小组|组名|group)$/i.test(group))) return; // 跳过表头
-    editingRows.push({id:null, name, group});
+    editingRows.push({id:null, name, gender:'男', group, sid});
     added++;
   });
   renderEditTable();
@@ -909,15 +1000,19 @@ function saveEditor(){
   if(!rows.length){ toast('至少需要一名学生（姓名不能为空）','err'); return; }
   const names = rows.map(r=>r.name.trim());
   if(new Set(names).size !== names.length){ toast('存在重复姓名，请检查','err'); return; }
+  // 学号：填了的不许重复，留空的按顺序自动补
+  const used = new Set(rows.map(r=>String(r.sid||'').trim()).filter(Boolean));
+  if(used.size !== rows.map(r=>String(r.sid||'').trim()).filter(Boolean).length){ toast('存在重复学号，请检查','err'); return; }
+  rows.forEach(r=>{ if(!String(r.sid||'').trim()){ r.sid = nextSid(used); used.add(r.sid); } });
   requireLogin(()=>{
     const oldMap = {}; state.students.forEach(s=>oldMap[s.id]=s);
     state.students = rows.map(r=>{
       if(r.id && oldMap[r.id]){
         const s = oldMap[r.id];
-        s.name = r.name.trim(); s.group = r.group.trim();
+        s.name = r.name.trim(); s.gender = (r.gender==='女')?'女':'男'; s.group = r.group.trim(); s.sid = String(r.sid).trim();
         return s; // 保留原有积分记录
       }
-      return {id:uid(), name:r.name.trim(), group:r.group.trim(), score:[]};
+      return {id:uid(), name:r.name.trim(), gender:(r.gender==='女')?'女':'男', group:r.group.trim(), sid:String(r.sid).trim(), score:[]};
     });
     selected.clear(); save(); renderList(); renderBoard(); closeModal('editorMask');
     toast('学生数据已保存，共 '+state.students.length+' 人','ok');
@@ -987,7 +1082,7 @@ function download(filename, content, mime){
 }
 function exportAll(){
   const data = {app:'班级积分管理系统', exportTime:fmtTime(Date.now()),
-    students: state.students.map(s=>({name:s.name, group:s.group||'',
+    students: state.students.map(s=>({name:s.name, gender:s.gender||'', group:s.group||'', sid:String(s.sid??''),
       score: s.score.map(e=>({type:e.type, score:Math.abs(e.score), note:e.note||'', active:e.active!==false, time:e.time}))})),
     templates: state.templates};
   download('班级积分数据_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(data, null, 2), 'application/json');
@@ -1004,7 +1099,7 @@ function importAll(input){
       if(!stu) throw new Error('缺少 students 字段');
       if(state.students.length && !confirm('导入将覆盖当前全部数据（共 '+state.students.length+' 名学生），是否继续？')) return;
       state.students = stu.map(s=>({
-        id: uid(), name: String(s.name||'').trim(), group: String(s.group||'').trim(),
+        id: uid(), name: String(s.name||'').trim(), gender: (s.gender==='女')?'女':'男', group: String(s.group||'').trim(), sid: String(s.sid||'').trim(),
         score: (Array.isArray(s.score)?s.score:[]).map(e=>({
           type: e.type==='扣'?'扣':'加', score: Math.abs(parseFloat(e.score)||0),
           note: String(e.note||''), active: e.active!==false, time: Number(e.time)||Date.now()
@@ -1015,7 +1110,7 @@ function importAll(input){
           type: t.type==='扣'?'扣':'加', score: Math.abs(parseFloat(t.score)||1), reason: String(t.reason)
         }));
       }
-      selected.clear(); save(); renderList(); renderBoard();
+      selected.clear(); ensureSids(); save(); renderList(); renderBoard();
       toast('导入成功：'+state.students.length+' 名学生','ok');
     }catch(err){ toast('导入失败：文件格式不正确','err'); console.warn(err); }
   };
@@ -1061,6 +1156,175 @@ function saveTplManager(){
   state.templates = state.templates.filter(t=>String(t.reason||'').trim() && t.score>0);
   save(); closeModal('tplMask');
   toast('模板已保存，共 '+state.templates.length+' 个','ok');
+}
+
+/* ================= 随机抽人 ================= */
+let pickerSel = new Set();        // 抽人面板里选中的学生 id
+let drawnIds = new Set();         // 不重复模式下已抽中的 id（仅当次会话有效）
+let drawing = false;
+let pickNumMode = false;          // 面板/抽取结果显示学号
+let prWinners = [];               // 最近一次抽中的学生 id
+let prToggled = new Set();        // 结果中已点开显示姓名的那几项
+let histShowName = new Set();     // 抽取记录中点开「展示姓名」的条目下标
+
+function openPicker(){
+  renderPickGrid(); renderPickHist();
+  openModal('pickMask');
+}
+/* 学号可能是纯数字或自定义文本，纯数字按数值升序排在前面 */
+function sidCompare(a,b){
+  const x=String(a.sid??'').trim(), y=String(b.sid??'').trim();
+  const nx=/^\d+$/.test(x), ny=/^\d+$/.test(y);
+  if(nx && ny) return Number(x)-Number(y) || x.localeCompare(y);
+  if(nx) return -1;
+  if(ny) return 1;
+  return x.localeCompare(y,'zh') || a.name.localeCompare(b.name,'zh');
+}
+function pickSorted(){
+  const arr = state.students.slice();
+  if(pickNumMode) return arr.sort(sidCompare);
+  return arr.sort((a,b)=> pinyinInitials(a.name).localeCompare(pinyinInitials(b.name)) || a.name.localeCompare(b.name,'zh'));
+}
+function togglePickNumMode(){
+  pickNumMode = !pickNumMode;
+  document.getElementById('pickModeBtn').textContent = pickNumMode ? '🔤 按姓名显示' : '🔢 按学号显示';
+  renderPickGrid();
+  renderPrResult();
+}
+function pickLabel(s){ return pickNumMode ? String(s.sid??'') : s.name; }
+function renderPickGrid(){
+  const box = document.getElementById('pickGrid');
+  if(!state.students.length){ box.innerHTML = '<div class="empty-tip" style="grid-column:1/-1">暂无学生，请先在「学生编辑」中添加</div>'; return; }
+  box.innerHTML = pickSorted().map(s=>{
+    // 已抽中状态优先于选中状态，否则抽中后仍显示高亮、看不出禁用
+    const cls = drawnIds.has(s.id) ? ' drawn' : (pickerSel.has(s.id)?' on':'');
+    const g = s.gender ? '<span class="p-g">'+s.gender+'</span>' : '';
+    return '<div class="pick-cell'+cls+'" onclick="togglePickCell(\''+s.id+'\')" title="'+esc(s.name)+(s.group?('（'+esc(s.group)+'）'):'')+'">'
+      + esc(cut(pickLabel(s))) + g + '</div>';
+  }).join('');
+}
+function togglePickCell(id){
+  if(drawing) return;
+  // 已抽中的格子点击一次即重新点亮（移出已抽中名单），可再次被抽
+  if(drawnIds.has(id)){
+    drawnIds.delete(id); pickerSel.add(id);
+    renderPickGrid();
+    toast('已重新点亮「'+(state.students.find(s=>s.id===id)||{}).name+'」，可再次被抽中','ok');
+    return;
+  }
+  if(pickerSel.has(id)) pickerSel.delete(id); else pickerSel.add(id);
+  renderPickGrid();
+}
+function pickQuick(mode){
+  if(drawing) return;
+  if(mode==='all') state.students.forEach(s=>pickerSel.add(s.id));
+  else if(mode==='male' || mode==='female'){
+    const g = mode==='male' ? '男' : '女';
+    pickerSel.clear();
+    state.students.forEach(s=>{ if((s.gender||'')===g) pickerSel.add(s.id); });
+  }
+  else if(mode==='invert'){
+    const all = new Set(state.students.map(s=>s.id));
+    const next = new Set();
+    all.forEach(id=>{ if(!pickerSel.has(id)) next.add(id); });
+    pickerSel.clear(); next.forEach(id=>pickerSel.add(id));
+  }
+  renderPickGrid();
+}
+function pickReset(){
+  if(drawing) return;
+  pickerSel.clear(); drawnIds.clear();
+  prWinners = []; prToggled.clear();
+  document.getElementById('prNames').textContent = '—';
+  document.getElementById('pickResult').classList.remove('rolling');
+  renderPickGrid();
+  toast('已重置选择与抽取状态','ok');
+}
+/* 抽取结果：学号模式下每项可单独点击，在学号/姓名之间切换 */
+function renderPrResult(){
+  const el = document.getElementById('prNames');
+  if(!prWinners.length){ el.textContent = '—'; return; }
+  if(!pickNumMode){
+    el.textContent = prWinners.map(id=>(state.students.find(s=>s.id===id)||{}).name||'？').join('、');
+    return;
+  }
+  el.innerHTML = prWinners.map(id=>{
+    const stu = state.students.find(s=>s.id===id)||{};
+    const txt = prToggled.has(id) ? (stu.name||'？') : String(stu.sid??'？');
+    return '<span class="pr-item" onclick="togglePrItem(\''+id+'\')" title="点击切换姓名/学号">'+esc(txt)+'</span>';
+  }).join('、');
+}
+function togglePrItem(id){
+  if(!prWinners.includes(id)) return;
+  if(prToggled.has(id)) prToggled.delete(id); else prToggled.add(id);
+  renderPrResult();
+}
+function startDraw(){
+  if(drawing) return;
+  const repeat = document.getElementById('pickRepeat').checked;
+  const n = Math.max(1, parseInt(document.getElementById('pickCount').value)||1);
+  const dur = Math.min(10, Math.max(1, parseInt(document.getElementById('pickDur').value)||3));
+  // 候选池 = 面板选中 ∩（不重复模式下去掉已抽中）
+  let pool = pickSorted().filter(s=>pickerSel.has(s.id) && (repeat || !drawnIds.has(s.id)));
+  if(!pool.length){
+    // 选中全被抽光时提示重置
+    toast(pickerSel.size ? '选中的学生已全部抽中，请重置选择或开启重复抽取' : '请先在上方选择学生','err');
+    return;
+  }
+  if(!repeat && n > pool.length){ toast('候选仅剩 '+pool.length+' 人，不够抽取 '+n+' 人','err'); return; }
+  drawing = true;
+  document.getElementById('pickGo').disabled = true;
+  const res = document.getElementById('pickResult');
+  const namesEl = document.getElementById('prNames');
+  res.classList.add('rolling');
+  const start = Date.now();
+  const timer = setInterval(()=>{
+    namesEl.textContent = pickLabel(pool[Math.floor(Math.random()*pool.length)]);
+    if(Date.now() - start >= dur*1000){
+      clearInterval(timer);
+      // Fisher-Yates 抽 n 人
+      const arr = pool.slice();
+      for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+      const winners = arr.slice(0, n);
+      if(pickNumMode) winners.sort(sidCompare);
+      prWinners = winners.map(s=>s.id); prToggled.clear();
+      res.classList.remove('rolling');
+      // 不可重复：抽中即移出选中集，格子当次就呈现禁用态
+      if(!repeat) winners.forEach(s=>{ drawnIds.add(s.id); pickerSel.delete(s.id); });
+      // 记录当次学号映射快照，日后学号改了记录仍按当时显示
+      const numMap = {};
+      winners.forEach(s=>{ numMap[s.id] = String(s.sid??''); });
+      state.drawRecords.unshift({time:Date.now(), names:winners.map(s=>s.name), ids:winners.map(s=>s.id), numMap, repeat});
+      if(state.drawRecords.length > 100) state.drawRecords.length = 100;
+      save(); renderPickHist(); renderPickGrid();
+      drawing = false;
+      document.getElementById('pickGo').disabled = false;
+      renderPrResult();
+      toast('抽中 '+winners.length+' 人：'+winners.map(s=>pickLabel(s)).join('、'),'ok');
+    }
+  }, 70);
+}
+function renderPickHist(){
+  const box = document.getElementById('pickHist');
+  if(!state.drawRecords.length){ box.innerHTML = '<div class="empty-tip" style="padding:14px 0">暂无抽取记录</div>'; return; }
+  box.innerHTML = state.drawRecords.map((r,idx)=>{
+    let mid;
+    if(r.ids && r.numMap){
+      const nums = r.ids.map(id=>r.numMap[id]??'？').join('、');
+      const nms = r.ids.map(id=>(state.students.find(s=>s.id===id)||{}).name||r.numMap[id]||'？').join('、');
+      const shown = histShowName.has(idx);
+      mid = '<span class="ph-names">'+esc(shown?nms:nums)+'</span>'
+        + '<button class="ph-show" onclick="toggleHist('+idx+')">'+(shown?'显示学号':'展示姓名')+'</button>';
+    }else{
+      mid = '<span class="ph-names">'+esc(r.names.join('、'))+'</span>';
+    }
+    return '<div class="ph-row"><span class="ph-time">'+fmtTime(r.time)+'</span>' + mid
+      + (r.repeat?'':'<span class="s-group">不重复</span>') + '</div>';
+  }).join('');
+}
+function toggleHist(idx){
+  if(histShowName.has(idx)) histShowName.delete(idx); else histShowName.add(idx);
+  renderPickHist();
 }
 
 /* ================= 登录系统 + 权限 ================= */
